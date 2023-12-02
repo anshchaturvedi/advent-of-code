@@ -1,5 +1,3 @@
-from pprint import pprint
-
 MAX_RED = 12
 MAX_GREEN = 13
 MAX_BLUE = 14
@@ -21,24 +19,11 @@ def process_lines(lines):
     processed_picks = " ".join(line[2:]).split(";")
     processed[idx] = processed_picks
 
-  # this is probably some of the ugliest code I've ever written
-  # but I'm bad at string manipulation in Python so...
   for game_id, picks in processed.items():
-    new_picks = []
-    for pick in picks: new_picks.append(pick.strip())
-    processed[game_id] = new_picks
-    
-    new_picks = []
-    for pick in picks: new_picks.append(pick.split(';'))
-    processed[game_id] = new_picks
-
-    new_picks = []
-    for pick in picks: new_picks.append(pick.strip())
-    processed[game_id] = new_picks
-    
-    new_picks = []
-    for pick in picks: new_picks.append(pick.split(','))
-    processed[game_id] = new_picks
+    processed[game_id] = [pick.strip() for pick in picks]
+    processed[game_id] = [pick.split(';') for pick in picks]
+    processed[game_id] = [pick.strip() for pick in picks]
+    processed[game_id] = [pick.split(',') for pick in picks]
 
   return processed
 
@@ -51,15 +36,9 @@ def check_games(all_games):
       for pair in game:
         pair = pair.strip().split(' ')
         count, color = int(pair[0]), pair[1]
-        if color == "red" and count > MAX_RED: 
-          good = False
-          break
-        if color == "blue" and count > MAX_BLUE:
-          good = False
-          break
-        if color == "green" and count > MAX_GREEN: 
-          good = False
-          break
+        if color == "red" and count > MAX_RED: good = False
+        if color == "blue" and count > MAX_BLUE: good = False
+        if color == "green" and count > MAX_GREEN: good = False
 
     if good: 
       ans += game_id
@@ -100,4 +79,4 @@ def solution2():
   return ans
 
 if __name__ == "__main__":
-  print(solution2())
+  print(solution())
