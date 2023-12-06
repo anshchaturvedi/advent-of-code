@@ -64,10 +64,11 @@ def solution(filename):
   seeds, info = generate_maps(lines)
 
   mini = float('inf')
-  for seed in seeds:
+  for seed in range(100):
     cur_val = seed
     for key in keys:
       cur_val = get_map_val(info, key, cur_val)
+    print(cur_val)
     mini = min(mini, cur_val)
 
   return mini
@@ -77,24 +78,13 @@ def solution2(filename):
   seeds, info = generate_maps(lines)
 
   mini = float('inf')
-  seen = {}
 
-  for seed in range(1500000000):
-    if seed in seen:
-      mini = min(mini, seen[seed])
-
-  # for i in range(0, len(seeds), 2):
-  #   start_seed, end_seed = seeds[i], seeds[i] + seeds[i + 1]
-  #   for seed in range(start_seed, end_seed):
-  #     if seed in seen:
-  #       mini = min(mini, seen[seed])
-  #     else:
-  #       cur_val = seed
-  #       for key in keys: cur_val = get_map_val(info, key, cur_val)
-  #       seen[seed] = cur_val
-  #       mini = min(mini, cur_val)
-
-    # print("got through bunch")
+  for i in range(0, len(seeds), 2):
+    start_seed, end_seed = seeds[i], seeds[i] + seeds[i + 1]
+    for seed in range(start_seed, end_seed):
+      cur_val = seed
+      for key in keys: cur_val = get_map_val(info, key, cur_val)
+      mini = min(mini, cur_val)
 
   return mini
 
@@ -102,4 +92,4 @@ if __name__ == "__main__":
   filename1 = "input_small.txt"
   filename2 = "input_large.txt"
   print(solution2(filename1))
-  # print(solution2(filename2))
+  print(solution2(filename2))
