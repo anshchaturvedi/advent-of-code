@@ -1,4 +1,3 @@
-from pprint import pprint
 from enum import Enum
 from collections import Counter
 from functools import cmp_to_key
@@ -19,6 +18,15 @@ CARD_STRENGTHS = {
   'A': 12
 }
 
+class HandTypes(Enum):
+  HIGH_CARD = 1
+  ONE_PAIR = 2
+  TWO_PAIR = 3
+  THREE_OF_A_KIND = 4
+  FULL_HOUSE = 5
+  FOUR_OF_A_KIND = 6
+  FIVE_OF_A_KIND = 7
+
 def read_file(filename):
   buffer = []
   with open(filename) as f:
@@ -34,16 +42,7 @@ def read_file(filename):
     
   return hands
 
-class HandTypes(Enum):
-  HIGH_CARD = 1
-  ONE_PAIR = 2
-  TWO_PAIR = 3
-  THREE_OF_A_KIND = 4
-  FULL_HOUSE = 5
-  FOUR_OF_A_KIND = 6
-  FIVE_OF_A_KIND = 7
-
-def get_best_hand(freqs, num_jokers):
+def calculate_best_hand(freqs, num_jokers):
   if freqs == [1, 1, 1, 1, 1]: return [1, 1, 1, 2]
 
   elif freqs == [1, 1, 1, 2]: 
@@ -69,8 +68,7 @@ def get_hand_type(hand):
   freqs = sorted(counts.values())
 
   num_jokers = counts['J']
-  if num_jokers > 0: 
-    freqs = get_best_hand(freqs, num_jokers)
+  if num_jokers > 0: freqs = calculate_best_hand(freqs, num_jokers)
 
   distinct_cards = len(freqs)
 
@@ -101,14 +99,17 @@ def group_hands_by_hand(hands):
 
   return grouped_hands
 
-def hand_comparator(hand1, hand2):
-  (hand1, _), (hand2, _) = hand1, hand2
+def hand_comparator(hand_one, hand_two):
+  (hand_one, _), (hand_two, _) = hand_one, hand_two
 
-  for card1, card2 in zip(hand1, hand2):
-    if CARD_STRENGTHS[card1] > CARD_STRENGTHS[card2]: return 1
-    elif CARD_STRENGTHS[card1] < CARD_STRENGTHS[card2]: return -1
+  for card_one, card_two in zip(hand_one, hand_two):
+    if CARD_STRENGTHS[card_one] > CARD_STRENGTHS[card_two]: return 1
+    elif CARD_STRENGTHS[card_one] < CARD_STRENGTHS[card_two]: return -1
 
   return 0
+
+def flatten(l):
+  return [item for sublist in l for item in sublist]
 
 def order_hands_by_ranks(grouped_by_hand_type):
   grouped_hands = [group for group in grouped_by_hand_type.values()]
@@ -119,7 +120,7 @@ def order_hands_by_ranks(grouped_by_hand_type):
     res.append(sorted_group)
 
   # flatten using some list comprehension magic
-  return [item for sublist in res for item in sublist]
+  return flatten(res)
 
 def solution(filename):
   hands = read_file(filename)
@@ -137,5 +138,5 @@ if __name__ == "__main__":
   small = "input_small.txt"
   large = "input_large.txt"
 
-  print(solution(small))
-  print(solution(large))
+  assert 5905 == solution(small)
+  assert 248256639 == solution(large)
