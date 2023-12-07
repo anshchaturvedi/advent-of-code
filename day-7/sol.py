@@ -130,5 +130,5 @@ if __name__ == "__main__":
   small = "input_small.txt"
   large = "input_large.txt"
 
-  assert 5905 == solution(small)
-  assert 248256639 == solution(large)
+  assert "answer_1" == solution(small)
+  assert "answer_2" == solution(large)
