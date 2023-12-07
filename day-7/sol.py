@@ -44,22 +44,14 @@ def read_file(filename):
 
 def calculate_best_hand(freqs, num_jokers):
   if freqs == [1, 1, 1, 1, 1]: return [1, 1, 1, 2]
-
-  elif freqs == [1, 1, 1, 2]: 
-    if num_jokers == 1: return [1, 1, 3]
-    if num_jokers == 2: return [1, 1, 3]
+  elif freqs == [1, 1, 1, 2]: return [1, 1, 3]
 
   elif freqs == [1, 2, 2]:
     if num_jokers == 1: return [2, 3]
     if num_jokers == 2: return [1, 4]
   
-  elif freqs == [1, 1, 3]:
-    if num_jokers == 1: return [1, 4]
-    if num_jokers == 3: return [1, 4]
-  
-  elif freqs == [2, 3]:
-    if num_jokers == 2: return [5]
-    if num_jokers == 3: return [5]
+  elif freqs == [1, 1, 3]: return [1, 4]
+  elif freqs == [2, 3]: return [5]
   
   else: return [5]
   
