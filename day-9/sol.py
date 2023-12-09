@@ -26,12 +26,12 @@ def calculate_ans(lines):
         new_list.append(lists[-1][i] - lists[-1][i - 1])
       lists.append(new_list)
 
-    lists[-1].append(0)
+    lists[-1].insert(0, 0)
     
     for i in range(len(lists)-2, -1, -1):
-      lists[i].append(lists[i+1][-1] + lists[i][-1])
+      lists[i].insert(0, lists[i][0] - lists[i+1][0])
 
-    ans += lists[0][-1]
+    ans += lists[0][0]
 
   return ans
 
