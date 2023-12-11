@@ -37,7 +37,7 @@ def mapping(cur_point, direction):
     if cur_point in ['J', '7', '|']: return []
     else: return ['J', '7', '-']
 
-def solve(graph):
+def get_path_set(graph):
   x, y = find_start(graph)
   rows, cols = len(graph), len(graph[0])
   first_time = True
@@ -70,11 +70,57 @@ def solve(graph):
     
     else: break
 
-  return len(seen) // 2 + 1
+  return seen
+
+def find_s_replacement(graph):
+  (x, y) = find_start(graph)
+  rows, cols = len(graph), len(graph[0])
+
+  valid_neighbours = []
+  
+  # down
+  if is_on_board(x+1, y, rows, cols) and graph[x+1][y] in ['L', 'J', '|']: valid_neighbours.append("down")
+  # up
+  if is_on_board(x-1, y, rows, cols) and graph[x-1][y] in ['7', 'F', '|']: valid_neighbours.append("up")
+  # left
+  if is_on_board(x, y-1, rows, cols) and graph[x][y-1] in ['F', 'L', '-']: valid_neighbours.append("left")
+  # right
+  if is_on_board(x, y+1, rows, cols) and graph[x][y+1] in ['7', 'J', '-']: valid_neighbours.append("right")
+
+  valid_neighbours.sort()
+  
+  if valid_neighbours == ["down", "up"]: return '|'
+  if valid_neighbours == ["left", "right"]: return '-'
+  if valid_neighbours == ["down", "right"]: return 'F'
+  if valid_neighbours == ["down", "left"]: return '7'
+  if valid_neighbours == ["left", "up"]: return 'J'
+  if valid_neighbours == ["right", "up"]: return 'L'
+
+def get_area_inside_path(graph, path_set):
+  pipe = find_s_replacement(graph)
+  (x, y) = find_start(graph)
+  path_set.add((x, y))
+  graph[x][y] = pipe
+  rows, cols = len(graph), len(graph[0])
+  area = 0
+
+  for x in range(rows):
+    is_outside = True
+    for y in range(cols):
+      coord = (x, y)
+      if coord not in path_set:
+        if not is_outside: area += 1
+      else:
+        # coordinate is part of path, so we flip flag
+        if graph[x][y] in ['|', 'F', '7']: is_outside = not is_outside
+
+  return area
+      
 
 def solution(filename):
   graph = read_file(filename)
-  return solve(graph)
+  path_set = get_path_set(graph)
+  return get_area_inside_path(graph, path_set)
 
 if __name__ == "__main__":
   small = "input_small.txt"
