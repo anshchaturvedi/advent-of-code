@@ -18,7 +18,7 @@ def get_galaxy_coords(graph):
 
   return coords
 
-def expand_graph(graph):
+def expand_graph(graph, distance):
   rows_to_expand, cols_to_expand = [], []
   for i, row in enumerate(graph):
     if all(elem == '.' for elem in row): rows_to_expand.append(i)
@@ -34,22 +34,22 @@ def expand_graph(graph):
   for row in rows_to_expand:
     for i in range(len(all_coords)):
       if all_coords[i][0] > (row + counter):
-        all_coords[i][0] += 1
-    counter += 1
+        all_coords[i][0] += distance
+    counter += distance
 
   counter = 0
   # then shift columns
   for col in cols_to_expand:
     for i in range(len(all_coords)):
       if all_coords[i][1] > (col + counter):
-        all_coords[i][1] += 1
-    counter += 1
+        all_coords[i][1] += distance
+    counter += distance
         
   return all_coords
 
 def solution(filename):
   graph = read_file(filename)
-  coords = expand_graph(graph)
+  coords = expand_graph(graph, 999999)
   
   ans = 0
   for i in range(len(coords)):
