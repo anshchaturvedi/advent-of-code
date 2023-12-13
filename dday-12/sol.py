@@ -1,6 +1,6 @@
 from pprint import pprint
 import re
-import copy
+from functools import lru_cache
 
 def read_file(filename):
   buffer = []
@@ -38,24 +38,25 @@ def determine_if_valid(cur_board, counts):
 
 def get_count(board, counts):
 
+  @lru_cache
   def get_all_possible_boards_combinations(cur_board, idx):
     if idx >= len(cur_board):
       return determine_if_valid(cur_board, counts)
 
+    cur_board = tuple(cur_board)
     ans = 0
     if cur_board[idx] == '?':
-      # knapsack: either we put a '#' on current index or we don't
       cur_board[idx] = '#'
-      ans += get_all_possible_boards_combinations(list(cur_board), idx + 1)
+      ans += get_all_possible_boards_combinations(tuple(cur_board), idx + 1)
 
       cur_board[idx] = '.'
-      ans += get_all_possible_boards_combinations(list(cur_board), idx + 1)
+      ans += get_all_possible_boards_combinations(tuple(cur_board), idx + 1)
     else:
-      ans += get_all_possible_boards_combinations(list(cur_board), idx + 1)
+      ans += get_all_possible_boards_combinations(tuple(cur_board), idx + 1)
       
     return ans
 
-  return get_all_possible_boards_combinations(board, 0)
+  return get_all_possible_boards_combinations(tuple(board), 0)
   
 def solution(filename):
   lines = read_file(filename)
@@ -63,6 +64,7 @@ def solution(filename):
 
   ans = 0
   for (board, counts) in boards:
+    print(board, counts)
     ans += get_count(board, counts)
   return ans
 
@@ -71,5 +73,5 @@ if __name__ == "__main__":
   small = "input_small.txt"
   large = "input_large.txt"
 
-  print(solution(small))
+  # print(solution(small))
   print(solution(large))
