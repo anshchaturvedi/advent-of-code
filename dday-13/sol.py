@@ -1,4 +1,6 @@
 from pprint import pprint
+import math
+import timeit
 
 def read_file(filename):
   buffer = []
@@ -19,20 +21,33 @@ def read_file(filename):
   return result
 
 def check_coords(coords, is_rows=False):
-  for i in range(1, len(coords)):
-    if coords[i-1] == coords[i]:
-      top, bottom = i-1, i
 
-      valid = True
-      while top >= 0 and bottom < len(coords):
-        if coords[top] != coords[bottom]: 
+  idxs_to_check = []
+  for i, row1 in coords.items():
+    for j, row2 in coords.items():
+      if i != j and i < j:
+        diff = None
+        if len(row1) > len(row2): diff = list(set(row1) - set(row2))
+        else: diff = list(set(row2) - set(row1))
+
+        if len(diff) == 1 and (i + j) % 2 != 0 and abs(len(row1)-len(row2)) == 1:
+          idxs_to_check.append((math.floor((i+j)/2), math.ceil((i+j)/2)))
+
+  for top, bottom in idxs_to_check:
+    topp, bottomm = top, bottom
+    valid = True
+    changed_once = False
+    while top >= 0 and bottom < len(coords):
+      if coords[top] != coords[bottom]:
+        if not changed_once: changed_once = True
+        else:
           valid = False
           break
-        top -= 1
-        bottom += 1
+      top -= 1
+      bottom += 1
 
-      if valid: 
-        return 100 * i if is_rows else i
+    if valid:
+      return 100 * bottomm if is_rows else bottomm
 
   return None
 
@@ -64,8 +79,7 @@ def solution(filename):
   patterns = read_file(filename)
   
   ans = 0
-  for pattern in patterns:
-    ans += solve(pattern)
+  for pattern in patterns: ans += (solve(pattern))
   return ans
 
 if __name__ == "__main__":
