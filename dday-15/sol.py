@@ -12,10 +12,7 @@ def split_string(string):
 
 def get_hash(string):
   start = 0
-  for i in range(len(string)):
-    start += ord(string[i])
-    start *= 17
-    start %= 256
+  for i in range(len(string)): start = (start + ord(string[i])) * 17 % 256
   return start
 
 def populate(hashmap, string):
