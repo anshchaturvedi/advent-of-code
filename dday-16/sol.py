@@ -4,10 +4,7 @@ from collections import deque
 
 def read_file(filename):
     lines = [line.strip() for line in open(filename)]
-    board = []
-    for line in lines:
-        board.append([i for i in line])
-    return board
+    return [[i for i in line] for line in lines]
 
 
 def is_valid(x, y, rows, cols):
@@ -16,32 +13,28 @@ def is_valid(x, y, rows, cols):
 
 def solve(board):
     rows, cols = len(board), len(board[0])
-    ans = []
+    ans = float("-inf")
+
     # first top and bottom rows
     for c in range(cols):
-        ans.append(solve_with_starting_coord_and_dir(board, 0, c, "down"))
-        ans.append(solve_with_starting_coord_and_dir(board, rows - 1, c, "up"))
+        ans = max(ans, solve_with_starting_coord_and_dir(board, 0, c, "down"))
+        ans = max(ans, solve_with_starting_coord_and_dir(board, rows - 1, c, "up"))
 
     # then left and right columns
     for r in range(rows):
-        ans.append(solve_with_starting_coord_and_dir(board, r, 0, "right"))
-        ans.append(solve_with_starting_coord_and_dir(board, r, cols - 1, "left"))
+        ans = max(ans, solve_with_starting_coord_and_dir(board, r, 0, "right"))
+        ans = max(ans, solve_with_starting_coord_and_dir(board, r, cols - 1, "left"))
 
-    print(ans)
-    return max(ans)
+    return ans
 
 
 def solve_with_starting_coord_and_dir(board, start_x, start_y, dir):
     rows, cols = len(board), len(board[0])
-    new_board = []
-    for i in range(rows):
-        new_board.append(["." for i in range(cols)])
+    new_board = [["." for _ in range(cols)] for _ in range(rows)]
 
     visited = set()
-    where_light_is = set()
     queue = deque()
     queue.appendleft(((start_x, start_y), dir))
-    old_count = 0
 
     while len(queue) > 0:
         (x, y), dir = queue.pop()
@@ -109,9 +102,7 @@ def solve_with_starting_coord_and_dir(board, start_x, start_y, dir):
 
 def solution(filename):
     board = read_file(filename)
-
-    ans = solve(board)
-    return ans
+    return solve(board)
 
 
 if __name__ == "__main__":
