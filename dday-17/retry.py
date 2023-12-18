@@ -45,6 +45,7 @@ def get_dirs_from_current_path(path):
 
     return [Dir.UP, Dir.DOWN, Dir.LEFT, Dir.RIGHT]
 
+
 def solve(graph):
     ans = []
     rows, cols = len(graph), len(graph[0])
@@ -62,38 +63,53 @@ def solve(graph):
     while queue:
         _, point, path = heapq.heappop(queue)
         acceptable_dirs = get_dirs_from_current_path(path)
+        # print(_, point, path, acceptable_dirs)
+        # print()
         visited.add(point)
 
         for dir in acceptable_dirs:
             new_point = (point[0] + dir_mapping[dir][0], point[1] + dir_mapping[dir][1])
             if is_valid(new_point[0], new_point[1], rows, cols) and new_point not in visited:
-                visited.add(new_point)
+                # visited.add(new_point)
+                if new_point == (rows-1, cols-1):
+                    print(new_point, "GOT HERE")
 
                 new_cost = node_costs[point] + graph[new_point[0]][new_point[1]]
                 if node_costs[(new_point[0], new_point[1])] > new_cost:
                     node_costs[(new_point[0], new_point[1])] = new_cost
                     parents_map[new_point] = point
                     new_path = path + [(new_point, dir)]
+                    # pprint(node_costs)
                     heapq.heappush(queue, (new_cost, new_point, new_path))
 
     path = []
     start = (rows-1, cols-1)
+    s = start
     while start != (0, 0):
         path.insert(0, parents_map[start])
         start = parents_map[start]
+    path.append(s)
+    path.pop(0)
     pprint(path)
+    ans = 0
+    for x, y in path:
+        print((x, y), graph[x][y])
+        ans += graph[x][y]
+    print(ans)
+    print(ans - graph[0][0])
     start = (rows-1, cols-1)
-    pprint(node_costs[start])
+    # pprint(node_costs[start])
 
     new_board = [["." for _ in range(cols)] for _ in range(rows)]
     for x, y in path:
         new_board[x][y] = "#"
-    for line in new_board:
-        pprint(line)
+    # for line in new_board:
+        # pprint(line)
+
 
 def solution(filename):
     graph = read_file(filename)
-    solve(graph)
+    print(solve(graph))
 
 
 if __name__ == "__main__":
