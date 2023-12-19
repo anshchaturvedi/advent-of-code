@@ -55,16 +55,11 @@ def parse_parts(parts):
 def part_is_good(rulebook, part):
     cur_workflow = "in"
     while True:
-        # print("got here hello", cur_workflow)
         for check in rulebook[cur_workflow]:
-            # print(cur_workflow, part, rulebook[cur_workflow], check)
-            # print("------------------------------------------")
             if len(check) > 1:  # not the last state
                 start, op, val, next = check
                 if op == "<":
                     if part[start] < val:
-                        # if R or A, we can break out the loop
-                        # otherwise we continue
                         if next == "A":
                             return True
                         elif next == "R":
@@ -74,8 +69,6 @@ def part_is_good(rulebook, part):
                             break
                 elif op == ">":
                     if part[start] > val:
-                        # if R or A, we can break out the loop
-                        # otherwise we continue
                         if next == "A":
                             return True
                         elif next == "R":
@@ -85,8 +78,10 @@ def part_is_good(rulebook, part):
                             break
             else:
                 # we're at the last state
-                if check[0] == "A": return True
-                if check[0] == "R": return False
+                if check[0] == "A":
+                    return True
+                if check[0] == "R":
+                    return False
 
                 cur_workflow = check[0]
                 break
