@@ -1,5 +1,6 @@
 from pprint import pprint
 from collections import deque
+import time
 
 
 def read_file(filename, t=False):
@@ -30,7 +31,7 @@ def parse_rules(rules):
             check = rest[i].split(":")
             x, op, num, to = check[0][0], check[0][1], int(check[0][2:]), check[1]
             checks.append([x, op, num, to])
-        checks.append(rest[-1])
+        checks.append([rest[-1]])
 
         rulebook[start] = checks
 
@@ -51,12 +52,59 @@ def parse_parts(parts):
     return res
 
 
+def part_is_good(rulebook, part):
+    cur_workflow = "in"
+    while True:
+        # print("got here hello", cur_workflow)
+        for check in rulebook[cur_workflow]:
+            # print(cur_workflow, part, rulebook[cur_workflow], check)
+            # print("------------------------------------------")
+            if len(check) > 1:  # not the last state
+                start, op, val, next = check
+                if op == "<":
+                    if part[start] < val:
+                        # if R or A, we can break out the loop
+                        # otherwise we continue
+                        if next == "A":
+                            return True
+                        elif next == "R":
+                            return False
+                        else:
+                            cur_workflow = next
+                            break
+                elif op == ">":
+                    if part[start] > val:
+                        # if R or A, we can break out the loop
+                        # otherwise we continue
+                        if next == "A":
+                            return True
+                        elif next == "R":
+                            return False
+                        else:
+                            cur_workflow = next
+                            break
+            else:
+                # we're at the last state
+                if check[0] == "A": return True
+                if check[0] == "R": return False
+
+                cur_workflow = check[0]
+                break
+
+
 def solve(rulebook, parts):
     good_parts = []
 
     for part in parts:
-        cur_workflow = "in"
-        i = 0
+        if part_is_good(rulebook, part):
+            good_parts.append(part)
+
+    ans = 0
+    for part in good_parts:
+        for val in part.values():
+            ans += val
+
+    return ans
 
 
 def solution(filename):
@@ -71,4 +119,4 @@ if __name__ == "__main__":
     large = "input_large.txt"
 
     print(solution(small))
-    # print(solution(large))
+    print(solution(large))
