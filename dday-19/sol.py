@@ -1,6 +1,6 @@
 from pprint import pprint
 from collections import deque
-import time
+import copy
 
 
 def read_file(filename, t=False):
@@ -38,75 +38,48 @@ def parse_rules(rules):
     return rulebook
 
 
-def parse_parts(parts):
-    res = []
-    for part in parts:
-        acc = {}
-
-        part = part[1:-1].split(",")
-        for p in part:
-            start, num = p[0], int(p[2:])
-            acc[start] = num
-        res.append(acc)
-
-    return res
-
-
-def part_is_good(rulebook, part):
-    cur_workflow = "in"
-    while True:
-        for check in rulebook[cur_workflow]:
-            if len(check) > 1:  # not the last state
-                start, op, val, next = check
-                if op == "<":
-                    if part[start] < val:
-                        if next == "A":
-                            return True
-                        elif next == "R":
-                            return False
-                        else:
-                            cur_workflow = next
-                            break
-                elif op == ">":
-                    if part[start] > val:
-                        if next == "A":
-                            return True
-                        elif next == "R":
-                            return False
-                        else:
-                            cur_workflow = next
-                            break
-            else:
-                # we're at the last state
-                if check[0] == "A":
-                    return True
-                if check[0] == "R":
-                    return False
-
-                cur_workflow = check[0]
-                break
-
-
-def solve(rulebook, parts):
-    good_parts = []
-
-    for part in parts:
-        if part_is_good(rulebook, part):
-            good_parts.append(part)
-
+def calculate_all_combinations(rulebook):
     ans = 0
-    for part in good_parts:
-        for val in part.values():
-            ans += val
 
+    def dfs(cur_workflow, constraints):
+        nonlocal ans
+        if cur_workflow == "A":
+            values = constraints.values()
+            res = 1
+            for low, high in values:
+                res *= high - low + 1
+            ans += res
+            return
+
+        if cur_workflow == "R":
+            return
+
+        for rule in rulebook[cur_workflow]:
+            if len(rule) > 1:
+                a, op, val, next = rule
+                if op == ">":
+                    tmp = constraints[a][0]
+                    constraints[a][0] = val + 1
+                    dfs(next, copy.deepcopy(constraints))
+                    constraints[a][0] = tmp
+                    constraints[a][1] = val
+                else:
+                    tmp = constraints[a][1]
+                    constraints[a][1] = val - 1
+                    dfs(next, copy.deepcopy(constraints))
+                    constraints[a][1] = tmp
+                    constraints[a][0] = val
+            else:
+                dfs(rule[0], copy.deepcopy(constraints))
+
+    dfs("in", {i: [1, 4000] for i in ["x", "m", "a", "s"]})
     return ans
 
 
 def solution(filename):
-    rules, parts = read_file(filename)
-    rulebook, final_parts = parse_rules(rules), parse_parts(parts)
-
-    return solve(rulebook, final_parts)
+    rules, _parts = read_file(filename)
+    rulebook = parse_rules(rules)
+    return calculate_all_combinations(rulebook)
 
 
 if __name__ == "__main__":
