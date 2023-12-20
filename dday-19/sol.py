@@ -1,5 +1,3 @@
-from pprint import pprint
-from collections import deque
 import copy
 
 
@@ -60,13 +58,17 @@ def calculate_all_combinations(rulebook):
                 if op == ">":
                     tmp = constraints[a][0]
                     constraints[a][0] = val + 1
+
                     backtrack(next, copy.deepcopy(constraints))
+
                     constraints[a][0] = tmp
                     constraints[a][1] = val
                 else:
                     tmp = constraints[a][1]
                     constraints[a][1] = val - 1
+
                     backtrack(next, copy.deepcopy(constraints))
+
                     constraints[a][1] = tmp
                     constraints[a][0] = val
             else:
