@@ -41,7 +41,7 @@ def parse_rules(rules):
 def calculate_all_combinations(rulebook):
     ans = 0
 
-    def dfs(cur_workflow, constraints):
+    def backtrack(cur_workflow, constraints):
         nonlocal ans
         if cur_workflow == "A":
             values = constraints.values()
@@ -60,19 +60,19 @@ def calculate_all_combinations(rulebook):
                 if op == ">":
                     tmp = constraints[a][0]
                     constraints[a][0] = val + 1
-                    dfs(next, copy.deepcopy(constraints))
+                    backtrack(next, copy.deepcopy(constraints))
                     constraints[a][0] = tmp
                     constraints[a][1] = val
                 else:
                     tmp = constraints[a][1]
                     constraints[a][1] = val - 1
-                    dfs(next, copy.deepcopy(constraints))
+                    backtrack(next, copy.deepcopy(constraints))
                     constraints[a][1] = tmp
                     constraints[a][0] = val
             else:
-                dfs(rule[0], copy.deepcopy(constraints))
+                backtrack(rule[0], copy.deepcopy(constraints))
 
-    dfs("in", {i: [1, 4000] for i in ["x", "m", "a", "s"]})
+    backtrack("in", {i: [1, 4000] for i in "xmas"})
     return ans
 
 
