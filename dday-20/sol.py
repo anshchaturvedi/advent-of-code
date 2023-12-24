@@ -1,5 +1,6 @@
 from pprint import pprint
 from collections import deque
+import time
 
 BROADCASTER = "broadcaster"
 INVERTER = "&"
@@ -29,23 +30,19 @@ def read_file(filename, t=False):
             config[module] = line[1].split(", ")
             types[module] = type
 
+    # types[BROADCASTER] = "%"
     return config, types
 
 
-# False = low, True = high
 def solve(config, types):
-    # pprint(config)
-    # print()
-    # pprint(types)
-    state = {}
+    state = {BROADCASTER: LO}
 
-    # populate fip flops
+    # populate fip flops into state
     for key in config.keys():
         if key != BROADCASTER and types[key] == FLIP_FLOP:
             state[key] = LO
 
-    # pprint(state)
-    # populate inverters
+    # populate inverters into state
     for key, vals in config.items():
         if key != BROADCASTER:
             for val in vals:
@@ -54,29 +51,80 @@ def solve(config, types):
                         state[val] = {}
                     state[val][key] = LO
 
-    state[BROADCASTER] = LO
-    pprint(state)
+    for key, vals in config.items():
+        for val in vals:
+            if val in types and types[val] == INVERTER and key == BROADCASTER:
+                if val not in state:
+                    state[val] = {}
+                state[val][key] = LO
 
-    queue = deque()
-    for module in config[BROADCASTER]:
-        deque.append(module)
-    cur_emitted = BROADCASTER
+    low_count, high_count = 0, 0
+    print("config:", config)
+    print("types: ", types)
+    print("state: ", state)
+    print()
+    print("buttom -low-> broadcaster")
 
-    while queue:
-        
+    for _ in range(1):
+        low_count += 1
 
-    #     for module in modules:
-    #         pulse = state[cur_emitted]
-    #         if types(module) == FLIP_FLOP and pulse == LO:
-    #             state[module] = not state[module]
-    #         elif types(module) == INVERTER:
-    #             state[module][cur_emitted] = pulse
+        queue = deque()
+        for module in config[BROADCASTER]:
+            queue.append((BROADCASTER, module))
+
+        while queue:
+            # pprint(state)
+            # pprint(queue)
+            # print()
+            from_module, to_module = queue.popleft()
+
+            # first get the pulse type
+            pulse = None
+            if from_module in types:
+                if types[from_module] == FLIP_FLOP:
+                    pulse = state[from_module]
+                elif types[from_module] == INVERTER:
+                    if all(x is True for x in state[from_module].values()):
+                        pulse = LO
+                    else:
+                        pulse = HI
+
+            print(f"{from_module} -{'high' if pulse else 'low'}-> {to_module}")
+            populate_queue = False
+
+            if pulse == LO:
+                low_count += 1
+            else:
+                high_count += 1
+
+            # execute the pulse broadcast
+            if to_module in types:
+                if types[to_module] == FLIP_FLOP:
+                    if pulse == LO:
+                        state[to_module] = not state[to_module]
+                        populate_queue = True
+
+                if types[to_module] == INVERTER:
+                    if state[to_module][from_module] != pulse:
+                        state[to_module][from_module] = pulse
+                        populate_queue = True
+
+            if populate_queue:
+                if module in config:
+                    for to_to_module in config[to_module]:
+                        queue.append((to_module, to_to_module))
+        # print(state)
+        # print()
+
+    # print()
+    print("low_count:", low_count, "high_count:", high_count)
+    return low_count * high_count
 
 
 def solution(filename):
+    start_time = time.time()
     config, types = read_file(filename)
-
-    ans = solve(config, types)
+    return solve(config, types)
 
 
 if __name__ == "__main__":
