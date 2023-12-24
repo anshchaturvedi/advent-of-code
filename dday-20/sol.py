@@ -22,6 +22,7 @@ def read_file(filename, t=False):
     types = {}
 
     for line in lines:
+        print(line)
         val = list(map(lambda x: x.strip(), line[1:]))
         if line[0] == BROADCASTER:
             config[line[0]] = val[0].split(", ")
@@ -38,8 +39,8 @@ def read_file(filename, t=False):
             if value not in types:
                 types[value] = None
 
-    print(config)
-
+    # pprint(config)
+    # raise Exception("hello")
     types[BROADCASTER] = "%"
     return config, types
 
@@ -47,7 +48,7 @@ def read_file(filename, t=False):
 def solve(config, types):
     state = {BROADCASTER: LO}
 
-    # populate fip flops into state
+    # populate flip flops into state
     for key in config.keys():
         if key != BROADCASTER and types[key] == FLIP_FLOP:
             state[key] = LO
@@ -62,13 +63,15 @@ def solve(config, types):
                 state[val][key] = LO
 
     low_count, high_count = 0, 0
-    # print("state:", state)
+    # print()
+    pprint(state)
+    # return 0
     # print("types:", types)
     # print("config:", config)
     # print()
-    print("buttom -low-> broadcaster")
+    # print("buttom -low-> broadcaster")
 
-    for _ in range(1):
+    for _ in range(1000):
         low_count += 1
 
         queue = deque()
@@ -80,14 +83,14 @@ def solve(config, types):
             # print("state before:", state)
             from_module, pulse, to_module = queue.popleft()
 
-            populate_queue = False
+            # populate_queue = False
 
             if pulse == LO:
                 low_count += 1
             else:
                 high_count += 1
 
-            print(f"{from_module} -{'high' if pulse else 'low'}-> {to_module}")
+            # print(f"{from_module} -{'high' if pulse else 'low'}-> {to_module}")
             # print("pulse type:", "HI" if pulse else "LO")
 
             # execute the pulse broadcast
@@ -135,8 +138,8 @@ def solve(config, types):
 
 def solution(filename):
     config, types = read_file(filename)
-    # print("config:", config)
-    # print("types:", types)
+    # pprint(config)
+    # pprint(types)
     ans = solve(config, types)
     return ans
 
@@ -147,8 +150,8 @@ if __name__ == "__main__":
     small2 = "input_small_2.txt"
     large = "input_large.txt"
 
-    print(solution(small))
+    # print(solution(small))
     # print(solution(small2))
-    # print(solution(large))
+    print(solution(large))
     end_time = time.time()
     print(Fore.GREEN + f"code ran in {end_time-start_time:.5f} seconds")
