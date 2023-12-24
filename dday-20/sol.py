@@ -1,16 +1,43 @@
+from enum import Enum
 from pprint import pprint
 from collections import deque
-import time
 from colorama import Fore
-
-BROADCASTER = "broadcaster"
-INVERTER = "&"
-FLIP_FLOP = "%"
-LO = False
-HI = True
+import time
 
 
-def read_file(filename, t=False):
+class ModuleType(Enum):
+    BROADCASTER = "broadcaster"
+    FLIP_FLOP = "%"
+    INVERTER = "&"
+
+
+class PulseType(Enum):
+    LOW = 0
+    HIGH = 1
+
+
+class Module:
+    def __init__(self, line):
+        self.dests = []
+        self.name = ""
+        self.type = None
+
+        dests = list(map(lambda x: x.strip(), line[1].split(",")))
+
+        for dest in dests:
+            self.dests.append(dest)
+
+        if line[0] == "broadcaster":
+            self.name = line[0]
+            self.type = ModuleType("broadcaster")
+        else:
+            self.name = line[0][1:]
+            self.type = ModuleType(line[0][0])
+
+        self.memory = False if self.type == ModuleType.FLIP_FLOP else {}
+
+
+def read_and_parse_file(filename, t=False):
     lines = [line.strip() for line in open(filename)]
 
     for i in range(len(lines)):
@@ -18,129 +45,85 @@ def read_file(filename, t=False):
         for j in range(len(lines[i])):
             lines[i][j] = lines[i][j].strip()
 
-    config = {}
-    types = {}
+    modules = {}
 
     for line in lines:
-        print(line)
-        val = list(map(lambda x: x.strip(), line[1:]))
-        if line[0] == BROADCASTER:
-            config[line[0]] = val[0].split(", ")
-        else:
-            # pprint(line)
-            module, type = line[0][1:], line[0][0]
-            config[module] = line[1].split(", ")
-            types[module] = type
+        new_module = Module(line)
+        modules[new_module.name] = new_module
 
-    for key, values in config.items():
-        if key not in types:
-            types[key] = None
-        for value in values:
-            if value not in types:
-                types[value] = None
+    for module in modules:
+        for dest in modules[module].dests:
+            if dest in modules and modules[dest].type == ModuleType.INVERTER:
+                modules[dest].memory[module] = PulseType.LOW
 
-    # pprint(config)
-    # raise Exception("hello")
-    types[BROADCASTER] = "%"
-    return config, types
+    # for key, val in modules.items():
+    #     print(val.name, ":  ", val.type, val.dests, val.memory)
+
+    return modules
 
 
-def solve(config, types):
-    state = {BROADCASTER: LO}
-
-    # populate flip flops into state
-    for key in config.keys():
-        if key != BROADCASTER and types[key] == FLIP_FLOP:
-            state[key] = LO
-
-    # populate inverters into state
-    for key, vals in config.items():
-        # if key != BROADCASTER:
-        for val in vals:
-            if val in types and types[val] == INVERTER:
-                if val not in state:
-                    state[val] = {}
-                state[val][key] = LO
-
+def solve(modules):
     low_count, high_count = 0, 0
-    # print()
-    pprint(state)
-    # return 0
-    # print("types:", types)
-    # print("config:", config)
-    # print()
-    # print("buttom -low-> broadcaster")
-
-    for _ in range(1000):
+    vg = None
+    kp = None
+    gc = None
+    tx = None
+    for i in range(100000000):
         low_count += 1
-
         queue = deque()
-        for module in config[BROADCASTER]:
-            queue.append((BROADCASTER, LO, module))
+
+        for to_module in modules["broadcaster"].dests:
+            queue.append(("broadcaster", PulseType.LOW, to_module))
 
         while queue:
-            # print(queue)
-            # print("state before:", state)
             from_module, pulse, to_module = queue.popleft()
+            # print(pulse, to_module)
+            if pulse == PulseType.HIGH and from_module == "vg" and to_module == "bq":
+                vg = i
+            if pulse == PulseType.HIGH and from_module == "kp" and to_module == "bq":
+                kp = i
+            if pulse == PulseType.HIGH and from_module == "gc" and to_module == "bq":
+                gc = i
+            if pulse == PulseType.HIGH and from_module == "tx" and to_module == "bq":
+                tx = i
 
-            # populate_queue = False
+            if vg and kp and gc and tx:
+                return vg * kp * gc * tx
 
-            if pulse == LO:
+            if pulse == PulseType.LOW:
                 low_count += 1
             else:
                 high_count += 1
+                
+            if to_module not in modules:
+                continue
 
-            # print(f"{from_module} -{'high' if pulse else 'low'}-> {to_module}")
-            # print("pulse type:", "HI" if pulse else "LO")
+            # flip flops are only affected when pulse is LOW
+            if modules[to_module].type == ModuleType.FLIP_FLOP:
+                if pulse == PulseType.LOW:
+                    modules[to_module].memory = not modules[to_module].memory
+                    next_pulse = PulseType.HIGH if modules[to_module].memory else PulseType.LOW
+                    for to_to_module in modules[to_module].dests:
+                        queue.append((to_module, next_pulse, to_to_module))
 
-            # execute the pulse broadcast
-            # if to_module in types:
-            if types[to_module] == FLIP_FLOP:
-                if pulse == LO:
-                    state[to_module] = not state[to_module]
-                    populate_queue = True
+            elif modules[to_module].type == ModuleType.INVERTER:
+                modules[to_module].memory[from_module] = pulse
 
-            if types[to_module] == INVERTER:
-                if from_module == BROADCASTER:
-                    populate_queue = True
-                if state[to_module][from_module] != pulse:
-                    state[to_module][from_module] = pulse
-                    populate_queue = True
+                next_pulse = None
+                if all(x == PulseType.HIGH for x in modules[to_module].memory.values()):
+                    next_pulse = PulseType.LOW
+                else:
+                    next_pulse = PulseType.HIGH
+                
+                for to_to_module in modules[to_module].dests:
+                    queue.append((to_module, next_pulse, to_to_module))
 
-            # first get the pulse type
-            new_pulse = None
-            if to_module in types:
-                if types[to_module] == FLIP_FLOP:
-                    new_pulse = state[to_module]
-                elif types[to_module] == INVERTER:
-                    if all(x is True for x in state[to_module].values()):
-                        new_pulse = LO
-                    else:
-                        new_pulse = HI
-
-            # print("state after:", state)
-            # print("populate_queue:", populate_queue)
-            # print()
-            if populate_queue:
-                if to_module in config:
-                    for to_to_module in config[to_module]:
-                        queue.append((to_module, new_pulse, to_to_module))
-            else:
-                if to_module in config:
-                    for to_to_module in config[to_module]:
-                        if types[to_to_module] is None:
-                            queue.append((to_module, new_pulse, to_to_module))
-
-    # print()
-    print("low_count:", low_count, "high_count:", high_count)
-    return low_count * high_count
-
+    # print("low_count:", low_count, "high_count:", high_count)
+    # return low_count * high_count
 
 def solution(filename):
-    config, types = read_file(filename)
-    # pprint(config)
-    # pprint(types)
-    ans = solve(config, types)
+    modules = read_and_parse_file(filename)
+    ans = solve(modules)
     return ans
 
 
