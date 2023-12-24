@@ -64,6 +64,10 @@ def read_and_parse_file(filename, t=False):
 
 def solve(modules):
     low_count, high_count = 0, 0
+    vg = None
+    kp = None
+    gc = None
+    tx = None
     for i in range(100000000):
         low_count += 1
         queue = deque()
@@ -74,8 +78,17 @@ def solve(modules):
         while queue:
             from_module, pulse, to_module = queue.popleft()
             # print(pulse, to_module)
-            if pulse == PulseType.LOW and to_module == "rx":
-                return i
+            if pulse == PulseType.HIGH and from_module == "vg" and to_module == "bq":
+                vg = i
+            if pulse == PulseType.HIGH and from_module == "kp" and to_module == "bq":
+                kp = i
+            if pulse == PulseType.HIGH and from_module == "gc" and to_module == "bq":
+                gc = i
+            if pulse == PulseType.HIGH and from_module == "tx" and to_module == "bq":
+                tx = i
+
+            if vg and kp and gc and tx:
+                return vg * kp * gc * tx
 
             if pulse == PulseType.LOW:
                 low_count += 1
