@@ -1,5 +1,4 @@
-broadcaster -> f
-%f -> a, b
-&a -> c
-&b -> c
-&c -> output
+broadcaster -> a, b
+%a -> con
+%b -> con
+&con -> rx

@@ -62,10 +62,10 @@ def solve(config, types):
                 state[val][key] = LO
 
     low_count, high_count = 0, 0
-    print("state:", state)
-    print("types:", types)
-    print("config:", config)
-    print()
+    # print("state:", state)
+    # print("types:", types)
+    # print("config:", config)
+    # print()
     print("buttom -low-> broadcaster")
 
     for _ in range(1):
@@ -73,23 +73,12 @@ def solve(config, types):
 
         queue = deque()
         for module in config[BROADCASTER]:
-            queue.append((BROADCASTER, module))
+            queue.append((BROADCASTER, LO, module))
 
         while queue:
-            print(queue)
-            print("state before:", state)
-            from_module, to_module = queue.popleft()
-
-            # first get the pulse type
-            pulse = None
-            if from_module in types:
-                if types[from_module] == FLIP_FLOP:
-                    pulse = state[from_module]
-                elif types[from_module] == INVERTER:
-                    if all(x is True for x in state[from_module].values()):
-                        pulse = LO
-                    else:
-                        pulse = HI
+            # print(queue)
+            # print("state before:", state)
+            from_module, pulse, to_module = queue.popleft()
 
             populate_queue = False
 
@@ -115,18 +104,29 @@ def solve(config, types):
                     state[to_module][from_module] = pulse
                     populate_queue = True
 
-            print("state after:", state)
-            print("populate_queue:", populate_queue)
-            print()
+            # first get the pulse type
+            new_pulse = None
+            if to_module in types:
+                if types[to_module] == FLIP_FLOP:
+                    new_pulse = state[to_module]
+                elif types[to_module] == INVERTER:
+                    if all(x is True for x in state[to_module].values()):
+                        new_pulse = LO
+                    else:
+                        new_pulse = HI
+
+            # print("state after:", state)
+            # print("populate_queue:", populate_queue)
+            # print()
             if populate_queue:
                 if to_module in config:
                     for to_to_module in config[to_module]:
-                        queue.append((to_module, to_to_module))
+                        queue.append((to_module, new_pulse, to_to_module))
             else:
                 if to_module in config:
                     for to_to_module in config[to_module]:
                         if types[to_to_module] is None:
-                            queue.append((to_module, to_to_module))
+                            queue.append((to_module, new_pulse, to_to_module))
 
     # print()
     print("low_count:", low_count, "high_count:", high_count)
