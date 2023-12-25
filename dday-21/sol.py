@@ -27,50 +27,87 @@ def solve(graph):
     queue = deque()
 
     start = find_start(graph)
-    queue.append(start)
+    queue.append((start[0], start[1], 0, 0))
 
-    for _ in range(64):
+    for i in range(5000):
+        start_time = time.time()
         visited = set()
 
         len_to_pop = len(queue)
         for __ in range(len_to_pop):
-            x, y = queue.popleft()
+            x, y, board_x, board_y = queue.popleft()
 
             # up
-            if (
-                on_board(x - 1, y, rows, cols)
-                and graph[x - 1][y] in (".", "S")
-                and (x - 1, y) not in visited
-            ):
-                queue.append((x - 1, y))
-                visited.add((x - 1, y))
+            if x - 1 < 0:
+                new_x = rows + (x - 1)
+                if (
+                    graph[new_x][y] in (".", "S")
+                    and (new_x, y, board_x - 1, board_y) not in visited
+                ):
+                    queue.append((new_x, y, board_x - 1, board_y))
+                    visited.add((new_x, y, board_x - 1, board_y))
+            else:
+                if (
+                    graph[x - 1][y] in (".", "S")
+                    and (x - 1, y, board_x, board_y) not in visited
+                ):
+                    queue.append((x - 1, y, board_x, board_y))
+                    visited.add((x - 1, y, board_x, board_y))
 
             # down
-            if (
-                on_board(x + 1, y, rows, cols)
-                and graph[x + 1][y] in (".", "S")
-                and (x + 1, y) not in visited
-            ):
-                queue.append((x + 1, y))
-                visited.add((x + 1, y))
+            if x + 1 >= rows:
+                new_x = x + 1 - rows
+                if (
+                    graph[new_x][y] in (".", "S")
+                    and (new_x, y, board_x + 1, board_y) not in visited
+                ):
+                    queue.append((new_x, y, board_x + 1, board_y))
+                    visited.add((new_x, y, board_x + 1, board_y))
+            else:
+                if (
+                    graph[x + 1][y] in (".", "S")
+                    and (x + 1, y, board_x, board_y) not in visited
+                ):
+                    queue.append((x + 1, y, board_x, board_y))
+                    visited.add((x + 1, y, board_x, board_y))
 
             # left
-            if (
-                on_board(x, y - 1, rows, cols)
-                and graph[x][y - 1] in (".", "S")
-                and (x, y - 1) not in visited
-            ):
-                queue.append((x, y - 1))
-                visited.add((x, y - 1))
+            if y - 1 < 0:
+                new_y = cols + (y - 1)
+                if (
+                    graph[x][new_y] in (".", "S")
+                    and (x, new_y, board_x, board_y - 1) not in visited
+                ):
+                    queue.append((x, new_y, board_x, board_y - 1))
+                    visited.add((x, new_y, board_x, board_y - 1))
+            else:
+                if (
+                    graph[x][y - 1] in (".", "S")
+                    and (x, y - 1, board_x, board_y) not in visited
+                ):
+                    queue.append((x, y - 1, board_x, board_y))
+                    visited.add((x, y - 1, board_x, board_y))
 
             # right
-            if (
-                on_board(x, y + 1, rows, cols)
-                and graph[x][y + 1] in (".", "S")
-                and (x, y + 1) not in visited
-            ):
-                queue.append((x, y + 1))
-                visited.add((x, y + 1))
+            if y + 1 >= cols:
+                new_y = y + 1 - cols
+                if (
+                    graph[x][new_y] in (".", "S")
+                    and (x, new_y, board_x, board_y + 1) not in visited
+                ):
+                    queue.append((x, new_y, board_x, board_y + 1))
+                    visited.add((x, new_y, board_x, board_y + 1))
+            else:
+                if (
+                    graph[x][y + 1] in (".", "S")
+                    and (x, y + 1, board_x, board_y) not in visited
+                ):
+                    queue.append((x, y + 1, board_x, board_y))
+                    visited.add((x, y + 1, board_x, board_y))
+
+        end_time = time.time()
+        final_time = end_time - start_time
+        print(f"iteration {i} visited {len(visited)} in {final_time:.5f} seconds")
 
     return len(visited)
 
@@ -86,6 +123,6 @@ if __name__ == "__main__":
     large = "input_large.txt"
 
     print(solution(small))
-    print(solution(large))
+    # print(solution(large))
     end_time = time.time()
     print(Fore.GREEN + f"code ran in {end_time-start_time:.5f} seconds")
