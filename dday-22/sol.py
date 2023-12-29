@@ -68,8 +68,6 @@ def create_bricks(input):
 
 
 def solve(bricks):
-    pprint(bricks)
-    print("--------------------------------------------------")
     # first part is to get all the bricks to their final positions
     for i in range(len(bricks)):
         # if brick is at z = 1 then we can't do anything
@@ -104,7 +102,6 @@ def solve(bricks):
 
     # now we need to check what bricks are supporting what other bricks
     coords_to_bricks = {}
-    pprint(bricks)
 
     for brick in bricks:
         for coord in brick.get_coords():
