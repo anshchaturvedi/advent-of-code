@@ -157,4 +157,8 @@ if __name__ == "__main__":
         start_time = time.time()
         print(solution(file))
         end_time = time.time()
-        print(Fore.GREEN + f"code ran for {file} in {end_time-start_time:.4f} seconds" + Fore.WHITE)
+        print(
+            Fore.GREEN
+            + f"code ran for {file} in {end_time-start_time:.4f} seconds"
+            + Fore.WHITE
+        )
