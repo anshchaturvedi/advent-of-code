@@ -40,6 +40,9 @@ class Brick:
             for i in range(self.start_z, self.end_z + 1):
                 coords.append((self.start_x, self.start_y, i))
 
+        else:
+            coords.append((self.start_x, self.start_y, self.start_z))
+
         return coords
 
 
@@ -61,10 +64,12 @@ def create_bricks(input):
         )
         bricks.append(new_brick)
 
-    return sorted(bricks, key=lambda x: x.start_z)
+    return sorted(bricks, key=lambda x: min(x.start_z, x.end_z))
 
 
 def solve(bricks):
+    pprint(bricks)
+    print("--------------------------------------------------")
     # first part is to get all the bricks to their final positions
     for i in range(len(bricks)):
         # if brick is at z = 1 then we can't do anything
@@ -81,7 +86,6 @@ def solve(bricks):
         # one below (z-1) are also vacant
         while True:
             cur_coords = bricks[i].get_coords()
-            # print(cur_coords)
             good = True
             for x, y, z in cur_coords:
                 new_coord = (x, y, z - 1)
@@ -120,13 +124,21 @@ def solve(bricks):
             if new_point in coords_to_bricks and coords_to_bricks[new_point] != brick:
                 brick.bricks_below.add(coords_to_bricks[new_point])
 
+    # for brick in bricks:
+    #     print("--------------------------------------<")
+    #     print("brick:       ", brick)
+    #     print("brick_coords:", brick.get_coords())
+    #     print("below:       ", brick.bricks_below)
+    #     print("above:       ", brick.bricks_above)
+    #     print("--------------------------------------<")
+
     ans = 0
 
     for brick in bricks:
         if len(brick.bricks_above) > 0:
             good = True
             for above_brick in brick.bricks_above:
-                if len(above_brick.bricks_below) <= 1:
+                if len(above_brick.bricks_below) < 2:
                     # `above_brick` has more than one support, one
                     # of them being `brick`. This means its
                     # disintegrable
