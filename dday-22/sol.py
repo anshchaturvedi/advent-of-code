@@ -15,6 +15,9 @@ class Brick:
         self.end_y = end_y
         self.end_z = end_z
 
+        self.bricks_below = set()
+        self.bricks_above = set()
+
     def __repr__(self):
         return f"({self.start_x}, {self.start_y}, {self.start_z}) -> ({self.end_x}, {self.end_y}, {self.end_z})"
 
@@ -62,6 +65,7 @@ def create_bricks(input):
 
 
 def solve(bricks):
+    # first part is to get all the bricks to their final positions
     for i in range(len(bricks)):
         # if brick is at z = 1 then we can't do anything
         if bricks[i].start_z == 1:
@@ -77,19 +81,63 @@ def solve(bricks):
         # one below (z-1) are also vacant
         while True:
             cur_coords = bricks[i].get_coords()
+            # print(cur_coords)
             good = True
             for x, y, z in cur_coords:
                 new_coord = (x, y, z - 1)
                 if new_coord in coords_below:
-                    bad = False
+                    good = False
                     break
 
             if good:
                 bricks[i].move_down()
+                if bricks[i].start_z == 1:
+                    break
             else:
                 break
 
         # at this point, the brick should be at its final resting place
+
+    # now we need to check what bricks are supporting what other bricks
+    coords_to_bricks = {}
+    pprint(bricks)
+
+    for brick in bricks:
+        for coord in brick.get_coords():
+            coords_to_bricks[coord] = brick
+
+    for brick in bricks:
+        # all bricks that `brick` supports
+        brick_coords = brick.get_coords()
+        for x, y, z in brick_coords:
+            new_point = (x, y, z + 1)
+            if new_point in coords_to_bricks and coords_to_bricks[new_point] != brick:
+                brick.bricks_above.add(coords_to_bricks[new_point])
+
+        # all bricks that supports `brick`
+        for x, y, z in brick_coords:
+            new_point = (x, y, z - 1)
+            if new_point in coords_to_bricks and coords_to_bricks[new_point] != brick:
+                brick.bricks_below.add(coords_to_bricks[new_point])
+
+    ans = 0
+
+    for brick in bricks:
+        if len(brick.bricks_above) > 0:
+            good = True
+            for above_brick in brick.bricks_above:
+                if len(above_brick.bricks_below) <= 1:
+                    # `above_brick` has more than one support, one
+                    # of them being `brick`. This means its
+                    # disintegrable
+                    good = False
+
+            if good:
+                ans += 1
+        else:
+            ans += 1
+
+    return ans
 
 
 def solution(filename):
@@ -109,4 +157,4 @@ if __name__ == "__main__":
         start_time = time.time()
         print(solution(file))
         end_time = time.time()
-        print(Fore.GREEN + f"code ran for {file} in {end_time-start_time:.4f} seconds")
+        print(Fore.GREEN + f"code ran for {file} in {end_time-start_time:.4f} seconds" + Fore.WHITE)
