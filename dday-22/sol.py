@@ -121,14 +121,6 @@ def solve(bricks):
             if new_point in coords_to_bricks and coords_to_bricks[new_point] != brick:
                 brick.bricks_below.add(coords_to_bricks[new_point])
 
-    # for brick in bricks:
-    #     print("--------------------------------------<")
-    #     print("brick:       ", brick)
-    #     print("brick_coords:", brick.get_coords())
-    #     print("below:       ", brick.bricks_below)
-    #     print("above:       ", brick.bricks_above)
-    #     print("--------------------------------------<")
-
     ans = 0
 
     for brick in bricks:
@@ -136,9 +128,8 @@ def solve(bricks):
             good = True
             for above_brick in brick.bricks_above:
                 if len(above_brick.bricks_below) < 2:
-                    # `above_brick` has more than one support, one
-                    # of them being `brick`. This means its
-                    # disintegrable
+                    # `above_brick` has only one support which is `brick`
+                    # This means breaking `brick` also breaks `above_brick`
                     good = False
 
             if good:
