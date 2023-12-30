@@ -18,8 +18,13 @@ class Brick:
         self.bricks_below = set()
         self.bricks_above = set()
 
+        self.is_broken = False
+
     def __repr__(self):
         return f"({self.start_x}, {self.start_y}, {self.start_z}) -> ({self.end_x}, {self.end_y}, {self.end_z})"
+
+    def set_as_broken(self):
+        self.is_broken = True
 
     def move_down(self, amount=1):
         self.start_z -= amount
@@ -65,6 +70,33 @@ def create_bricks(input):
         bricks.append(new_brick)
 
     return sorted(bricks, key=lambda x: min(x.start_z, x.end_z))
+
+
+def determine_all_fallen_bricks(bricks):
+    ans = 0
+
+    for brick in bricks:
+        queue = deque()
+        queue.appendleft(brick)
+        brick.set_as_broken()
+
+        while queue:
+            cur_brick = queue.pop()
+            for above_brick in cur_brick.bricks_above:
+                if all(
+                    below_brick.is_broken for below_brick in above_brick.bricks_below
+                ):
+                    above_brick.set_as_broken()
+                    queue.appendleft(above_brick)
+
+        count = 0
+        for x in bricks:
+            count = count + 1 if x.is_broken else count
+            x.is_broken = False
+
+        ans += count - 1
+
+    return ans
 
 
 def solve(bricks):
@@ -121,23 +153,7 @@ def solve(bricks):
             if new_point in coords_to_bricks and coords_to_bricks[new_point] != brick:
                 brick.bricks_below.add(coords_to_bricks[new_point])
 
-    ans = 0
-
-    for brick in bricks:
-        if len(brick.bricks_above) > 0:
-            good = True
-            for above_brick in brick.bricks_above:
-                if len(above_brick.bricks_below) < 2:
-                    # `above_brick` has only one support which is `brick`
-                    # This means breaking `brick` also breaks `above_brick`
-                    good = False
-
-            if good:
-                ans += 1
-        else:
-            ans += 1
-
-    return ans
+    return determine_all_fallen_bricks(bricks)
 
 
 def solution(filename):
