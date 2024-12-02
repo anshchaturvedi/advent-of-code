@@ -33,12 +33,9 @@ defmodule Day02 do
     file_name
     |> process_input()
     |> Enum.reduce(0, fn report, acc ->
-      possible_reports = Enum.map(0..length(report)-1, fn index ->
-        {_popped, new_report} = List.pop_at(report, index)
-        new_report
-      end)
+      possible_reports = Enum.map(0..length(report)-1, &List.delete_at(report, &1))
 
-      if Enum.any?([report | possible_reports], fn r -> check_report(r) end) do
+      if Enum.any?([report | possible_reports], &check_report/1) do
         acc + 1
       else
         acc
