@@ -7,17 +7,17 @@ defmodule Day02 do
     |> Enum.map(fn a -> Enum.map(a, &String.to_integer/1) end)
   end
 
-  defp check_report(report) do
+  defp is_report_safe?(report) do
     chunked = Enum.chunk_every(report, 2, 1, :discard)
 
-    report_is_monotonic?(chunked, :increasing) or report_is_monotonic?(chunked, :decreasing)
+    is_report_monotonic?(chunked, :increasing) or is_report_monotonic?(chunked, :decreasing)
   end
 
-  def report_is_monotonic?(chunked_report, :increasing) do
+  def is_report_monotonic?(chunked_report, :increasing) do
     Enum.all?(chunked_report, fn [a, b] -> a < b and b - a <= 3 end)
   end
 
-  def report_is_monotonic?(chunked_report, :decreasing) do
+  def is_report_monotonic?(chunked_report, :decreasing) do
     Enum.all?(chunked_report, fn [a, b] -> a > b and a - b <= 3 end)
   end
 
@@ -25,7 +25,7 @@ defmodule Day02 do
     file_name
     |> process_input()
     |> Enum.reduce(0, fn report, acc ->
-      acc + if check_report(report), do: 1, else: 0
+      acc + if is_report_safe?(report), do: 1, else: 0
     end)
   end
 
@@ -35,7 +35,7 @@ defmodule Day02 do
     |> Enum.reduce(0, fn report, acc ->
       possible_reports = Enum.map(0..length(report)-1, &List.delete_at(report, &1))
 
-      if Enum.any?([report | possible_reports], &check_report/1) do
+      if Enum.any?([report | possible_reports], &is_report_safe?/1) do
         acc + 1
       else
         acc
