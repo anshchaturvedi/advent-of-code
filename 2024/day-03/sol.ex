@@ -1,4 +1,11 @@
 defmodule Day03 do
+  defp parse_mult_op(mult_op_str) do
+    mult_op_str
+    |> String.slice(4..String.length(mult_op_str)-2)
+    |> String.split(",")
+    |> Enum.map(&String.to_integer/1)
+  end
+
   def part1(file_name) do
     input = file_name |> File.read!()
 
@@ -6,11 +13,7 @@ defmodule Day03 do
     |> Regex.scan(input)
     |> List.flatten()
     |> Enum.reduce(0, fn mult, acc ->
-      [a, b] =
-        mult
-        |> String.slice(4..String.length(mult)-2)
-        |> String.split(",")
-        |> Enum.map(&String.to_integer/1)
+      [a, b] = parse_mult_op(mult)
 
       acc + (a * b)
     end)
@@ -29,15 +32,11 @@ defmodule Day03 do
           "do()" -> {res, true}
           _ ->
             if is_on? do
-              [a, b] =
-                operation
-                |> String.slice(4..String.length(operation)-2)
-                |> String.split(",")
-                |> Enum.map(&String.to_integer/1)
+              [a, b] = parse_mult_op(operation)
 
-              {res + (a * b), true}
+              {res + (a * b), is_on?}
             else
-              {res, false}
+              {res, is_on?}
             end
         end
       end)
