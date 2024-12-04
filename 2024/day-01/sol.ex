@@ -23,13 +23,14 @@ defmodule Day01 do
   def part2(file_name) do
     [arr1, arr2] = process_input(file_name)
 
-    counter = Enum.reduce(arr2, %{}, fn num, acc ->
-      count = Map.get(acc, num, 0) + 1
-      Map.put(acc, num, count)
-    end)
+    counter =
+      Enum.reduce(arr2, %{}, fn num, acc ->
+        count = Map.get(acc, num, 0) + 1
+        Map.put(acc, num, count)
+      end)
 
     Enum.reduce(arr1, 0, fn num, acc ->
-      acc + (num * Map.get(counter, num, 0))
+      acc + num * Map.get(counter, num, 0)
     end)
   end
 end

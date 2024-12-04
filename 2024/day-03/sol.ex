@@ -1,7 +1,7 @@
 defmodule Day03 do
   defp parse_mult_op(mult_op_str) do
     mult_op_str
-    |> String.slice(4..String.length(mult_op_str)-2)
+    |> String.slice(4..(String.length(mult_op_str) - 2))
     |> String.split(",")
     |> Enum.map(&String.to_integer/1)
   end
@@ -15,7 +15,7 @@ defmodule Day03 do
     |> Enum.reduce(0, fn mult, acc ->
       [a, b] = parse_mult_op(mult)
 
-      acc + (a * b)
+      acc + a * b
     end)
   end
 
@@ -28,13 +28,17 @@ defmodule Day03 do
       |> List.flatten()
       |> Enum.reduce({0, true}, fn operation, {res, is_on?} ->
         case operation do
-          "don't()" -> {res, false}
-          "do()" -> {res, true}
+          "don't()" ->
+            {res, false}
+
+          "do()" ->
+            {res, true}
+
           _ ->
             if is_on? do
               [a, b] = parse_mult_op(operation)
 
-              {res + (a * b), is_on?}
+              {res + a * b, is_on?}
             else
               {res, is_on?}
             end
