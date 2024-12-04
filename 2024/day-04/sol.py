@@ -60,10 +60,32 @@ def part_1_solution(file_name: str):
 	return ans
 
 
+def part_2_solution(file_name: str):
+	graph = []
+
+	with open(file_name) as input_file:
+		line = input_file.readline()
+		while line:
+			graph.append(line.strip())
+			line = input_file.readline()
+
+	rows, cols = len(graph), len(graph[0])
+	valid = ["MAS", "SAM"]
+	ans = 0
+
+	for i in range(rows):
+		for j in range(cols):
+			if graph[i][j] == "A" and 0 < i < rows - 1 and 0 < j < cols - 1:
+				pos_diagonal = "".join([graph[i+1][j-1], graph[i][j], graph[i-1][j+1]])
+				neg_diagonal = "".join([graph[i-1][j-1], graph[i][j], graph[i+1][j+1]])
+				if pos_diagonal in valid and neg_diagonal in valid: ans += 1
+
+	return ans
+
 
 print(part_1_solution("sample.txt"))
 print(part_1_solution("full.txt"))
 
-# print(part_2_solution("sample2.txt"))
-# print(part_2_solution("full.txt"))
+print(part_2_solution("sample.txt"))
+print(part_2_solution("full.txt"))
 
