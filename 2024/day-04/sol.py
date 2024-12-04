@@ -13,7 +13,7 @@ def part_1_solution(file_name: str):
 	for i in range(rows):
 		for j in range(cols):
 			if graph[i][j] == "X":
-				up = "".join([graph[x][j] for x in range(i, max(-1, i-4), -1)])
+				up = "".join(graph[x][j] for x in range(i, max(-1, i-4), -1))
 				down = "".join(graph[x][j] for x in range(i, min(rows, i+4)))
 				left = "".join(graph[i][x] for x in range(j, max(-1, j-4), -1))
 				right = "".join(graph[i][x] for x in range(j, min(cols, j+4)))
