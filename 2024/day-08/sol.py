@@ -68,18 +68,19 @@ def part_2_solution(file_name: str):
 				rise = abs(points[j][0] - points[i][0])
 				run = abs(points[j][1] - points[i][1])
 				if points[i][1] <= points[j][1]:
-					for k in range(1, 100):
+					for k in range(1, max(rows, cols)):
 						res.add((points[i][0] - (rise * k), points[i][1] - (run * k)))
 						res.add((points[j][0] + (rise * k), points[j][1] + (run * k)))
 
 				else:
-					for k in range(1, 100):
+					for k in range(1, max(rows, cols)):
 						res.add((points[j][0] + (rise * k), points[j][1] - (run * k)))
 						res.add((points[i][0] - (rise * k), points[i][1] + (run * k)))
 	ans = 0
 	for i, j in res:
 		if i in range(rows) and j in range(cols):
 			if input[i][j] == ".": input[i][j] = "#"
+
 	for row in input:
 		for a in row:
 			if a != ".": ans += 1
