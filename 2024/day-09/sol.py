@@ -51,8 +51,10 @@ def part_2_solution(file_name: str):
 	res = []
 	counter = 0
 	sizes = {}
+	file_to_start_index = {}
 	for num in line:
 		if free:
+			file_to_start_index[counter] = len(res)
 			for _ in range(num): res.append(counter)
 			sizes[counter] = num
 			counter += 1
@@ -85,7 +87,7 @@ def part_2_solution(file_name: str):
 		# count += 1
 		file_size = sizes[file]
 
-		start_index = res.index(file)
+		start_index = file_to_start_index[file]
 		for free_index, x in enumerate(free_sizes):
 			if x == [-1, -1]: continue
 			if x[1] >= file_size and x[0] < start_index:
