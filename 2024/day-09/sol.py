@@ -89,10 +89,8 @@ def part_2_solution(file_name: str):
 		for free_index, x in enumerate(free_sizes):
 			if x == [-1, -1]: continue
 			if x[1] >= file_size and x[0] < start_index:
-				for i in range(start_index, start_index + file_size):
-					res[i] = "."
-				for ax in range(x[0], x[0] + file_size):
-					res[ax] = file
+				for i in range(file_size):
+					res[start_index + i], res[x[0] + i] = ".", file
 				if x[1] == file_size:
 					free_sizes[free_index] = [-1, -1]
 				else:
