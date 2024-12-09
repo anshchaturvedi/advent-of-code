@@ -6,23 +6,95 @@ sys.setrecursionlimit(15000000)
 
 
 def part_1_solution(file_name: str):
-	input = []
 
 	with open(file_name) as input_file:
 		line = input_file.readline()
-		while line:
-			input.append(list(line.strip()))
-			line = input_file.readline()
+		
+	line = list(map(int, line[:len(line)-1]))
 
+	free = True
+	res = []
+	counter = 0
+	for num in line:
+		if free:
+			for _ in range(num): res.append(counter)
+			counter += 1
+			free = not free
+		else:
+			for _ in range(num): res.append(".")
+			free = not free
+
+	i, j = 0, len(res) - 1
+	while i < j:
+		while res[i] != ".": i += 1
+		while res[j] == ".": j -= 1
+		res[i], res[j] = res[j], res[i]
+		i += 1
+		j -= 1
+
+	for i in range(len(res)-1, -1, -1):
+		if res[i] == ".": res.pop(i)
+
+	ans = 0
+	for a, b in enumerate(res):
+		ans += a * b
+	return ans
 	
 def part_2_solution(file_name: str):
-	input = []
 
 	with open(file_name) as input_file:
 		line = input_file.readline()
-		while line:
-			input.append(list(line.strip()))
-			line = input_file.readline()
+		
+	line = list(map(int, line[:len(line)-1]))
+
+	free = True
+	res = []
+	counter = 0
+	sizes = {}
+	for num in line:
+		if free:
+			for _ in range(num): res.append(counter)
+			sizes[counter] = num
+			counter += 1
+			free = not free
+		else:
+			for _ in range(num): res.append(".")
+			free = not free
+
+	count = 0
+	for file in reversed(sorted(sizes.keys())):
+		print(f"processing {count} / {len(sizes)}")
+		count += 1
+		file_size = sizes[file]
+		free_sizes = []
+		p = 0
+		inside = False
+		cur = [None, None] # start, size
+		while p < len(res):
+			if res[p] == "." and not inside:
+				inside = True
+				cur[0], cur[1] = p, 1
+			elif res[p] == "." and inside:
+				cur[1] = cur[1] + 1
+			elif res[p] != "." and inside:
+				inside = False
+				free_sizes.append(list(cur))
+				cur = [None, None]
+			p += 1
+
+		start_index = res.index(file)
+		for x in free_sizes:
+			if x[1] >= file_size and x[0] < start_index:
+				for i in range(start_index, start_index + file_size):
+					res[i] = "."
+				for ax in range(x[0], x[0] + file_size):
+					res[ax] = file
+				break
+				
+	ans = 0
+	for a, b in enumerate(res):
+		if b != ".": ans += a * b
+	return ans
 
 def time_function(func, *args):
 	start_time = time.time()
@@ -34,6 +106,6 @@ def time_function(func, *args):
 	print(f"{input_type} input {part} took {elapsed_time} milliseconds and returned {result}")
 
 time_function(part_1_solution, "sample.txt")
-# time_function(part_1_solution, "full.txt")
-# time_function(part_2_solution, "sample.txt")
-# time_function(part_2_solution, "full.txt")
+time_function(part_1_solution, "full.txt")
+time_function(part_2_solution, "sample.txt")
+time_function(part_2_solution, "full.txt")
