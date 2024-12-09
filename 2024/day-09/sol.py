@@ -78,23 +78,21 @@ def part_2_solution(file_name: str):
 			free_sizes.append(list(cur))
 			cur = [None, None]
 		p += 1
-	# print(free_sizes)
 
-	# count = 0
+	count = 0
 	ordered = sorted(sizes.keys(), reverse=True)
 	for file in ordered:
 		# print(f"processing {count} / {len(sizes)}")
-		# count += 1
+		count += 1
 		file_size = sizes[file]
 
 		start_index = file_to_start_index[file]
 		for free_index, x in enumerate(free_sizes):
-			if x == [-1, -1]: continue
 			if x[1] >= file_size and x[0] < start_index:
 				for i in range(file_size):
 					res[start_index + i], res[x[0] + i] = ".", file
 				if x[1] == file_size:
-					free_sizes[free_index] = [-1, -1]
+					free_sizes.pop(free_index)
 				else:
 					x[0] += file_size
 					x[1] -= file_size
