@@ -17,25 +17,26 @@ def part_1_solution(file_name: str):
 
 	rows, cols = len(input), len(input[0])
 
-	seen = set()
-	def dfs(x, y, cur):
-		if x < 0 or x >= rows or y < 0 or y >= cols or input[x][y] != cur: return
+	def dfs(x, y, cur, seen):
+		if x < 0 or x >= rows or y < 0 or y >= cols or input[x][y] != cur: return 0
 		
 		if input[x][y] == cur:
-			if cur == 9: seen.add((x, y))
-			else:
-				dfs(x+1, y, cur + 1)
-				dfs(x-1, y, cur + 1)
-				dfs(x, y-1, cur + 1)
-				dfs(x, y+1, cur + 1)
+			if cur == 9 and (x, y) not in seen:
+				seen.add((x, y))
+				return 1
+			else: return (
+				dfs(x+1, y, cur + 1, seen) + 
+				dfs(x-1, y, cur + 1, seen) + 
+        dfs(x, y-1, cur + 1, seen) +
+        dfs(x, y+1, cur + 1, seen)
+      )
+		return 0
 		
 	ans = 0
 	for i in range(rows):
 		for j in range(cols):
 			if input[i][j] == 0:
-				dfs(i, j, 0)
-				ans += len(seen)
-				seen = set()
+				ans += dfs(i, j, 0, set())
 
 	return ans
 
