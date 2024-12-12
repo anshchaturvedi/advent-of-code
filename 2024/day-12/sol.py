@@ -74,8 +74,6 @@ def part_1_solution(file_name: str):
 	return ans
 
 
-  
-	
 def part_2_solution(file_name: str):
 	input = []
 
@@ -91,8 +89,7 @@ def part_2_solution(file_name: str):
 	def dfs(x, y, c, counter):
 		if x < 0 or x >= rows or y < 0 or y >= rows or input[x][y] != c:
 			return 0
-		if (x, y) in visited:
-			return 0
+		if (x, y) in visited: return 0
 		
 		visited.add((x, y))
 		input[x][y] = counter
@@ -112,7 +109,6 @@ def part_2_solution(file_name: str):
 				res = dfs(i, j, input[i][j], counter)
 				letter_to_size[counter] = (res)
 				counter += 1
-	# for row in input: print(row)
 
 	ans = 0
 	for i in range(0, counter):
@@ -122,61 +118,40 @@ def part_2_solution(file_name: str):
 		for row_index, row in enumerate(input):
 			inside = False
 			for x in range(len(row)):
-				# print(row_index, x, same_cols, sides)
-				# same_cols.add((row_index, x))
 				if row[x] == i:
-					# print("GOT HERE-1", row_index, x, inside, same_cols_start, sides)
 					if not inside:
 						if (row_index-1, x) not in same_cols_start: sides += 1
 						same_cols_start.add((row_index, x))
 						inside = True
 				elif row[x] != i and inside:
-					# print("GOT HERE-2", row_index, x, inside, same_cols_end, sides)
 					if (row_index-1, x-1) not in same_cols_end: sides += 1
 					same_cols_end.add((row_index, x-1))
 					inside = False
-			# print("end", inside, row_index, x, same_cols_end, sides)
 			if inside:
 				same_cols_end.add((row_index, x))
 			if inside and (row_index-1, x) not in same_cols_end:
 				sides += 1
-				# same_cols_end.add((row_index, x))
-		# print(same_cols)
-		
-		# print("row sides", sides)
-
-		# for col in range(cols):
-		# 	entire_col = [input[i][col] for i in range(rows-1, -1, -1)]
-		# 	print(entire_col)
 
 		same_rows_start = set()
 		same_rows_end = set()
 		for col in range(cols):
 			entire_col = [input[i][col] for i in range(rows-1, -1, -1)]
-			# print(entire_col)
-			# print(entire_col)
 			inside = False
 			for x in range(len(entire_col)):
 				if entire_col[x] == i:
-					# print("GOT HERE-1", col, x, inside, same_rows_start, sides)
 					if not inside:
 						if (col-1, x) not in same_rows_start: sides += 1
 						same_rows_start.add((col, x))
 						inside = True
 				elif entire_col[x] != i and inside:
-					# print("GOT HERE-2", col, x, inside, same_rows_end, sides)
 					if (col-1, x-1) not in same_rows_end: sides += 1
 					same_rows_end.add((col, x-1))
 					inside = False
-			# print("end", inside, col, x, same_rows_end, sides)
 			if inside:
 				same_rows_end.add((col, x))
 			if inside and (col-1, x) not in same_rows_end:
 				sides += 1
-				# same_rows_end.add((col, x))
 
-		# print("total sides", sides)
-		# print(i, letter_to_size[i], sides)
 		ans += letter_to_size[i] * sides 
 	return ans
 
@@ -192,6 +167,6 @@ def time_function(func, *args):
 	print(f"{input_type} input {part} took {elapsed_time} milliseconds and returned {result}")
 
 time_function(part_1_solution, "sample.txt")
-# time_function(part_1_solution, "full.txt")
+time_function(part_1_solution, "full.txt")
 time_function(part_2_solution, "sample.txt")
 time_function(part_2_solution, "full.txt")
