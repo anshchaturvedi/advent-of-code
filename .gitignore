@@ -1,3 +1,5 @@
 */**/*.txt
 */**/*.beam
-get_input.py
+.env
+.vscode
+*/**/__pycache__

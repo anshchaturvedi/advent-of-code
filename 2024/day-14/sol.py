@@ -1,11 +1,13 @@
+import argparse
 from collections import Counter, defaultdict, deque
 import heapq
 import math
-import pprint
-import sys
-import time
-import re
+import os
 import numpy as np
+import pprint
+import re
+import sys
+
 
 sys.setrecursionlimit(15000000)
 
@@ -37,11 +39,11 @@ def part_1_solution(file_name: str):
     grid = [[0 for _ in range(cols)] for _ in range(rows)]
 
     for line in input:
-        robot_x_pos, robot_y_pos = line[1], line[0]
-        robot_x_vel, robot_y_vel = line[3], line[2]
-        robot_x_pos = (robot_x_pos + 100 * robot_x_vel) % rows
-        robot_y_pos = (robot_y_pos + 100 * robot_y_vel) % cols
-        grid[robot_x_pos][robot_y_pos] += 1
+        x_pos, y_pos = line[1], line[0]
+        x_vel, y_vel = line[3], line[2]
+        x_pos = (x_pos + 100 * x_vel) % rows
+        y_pos = (y_pos + 100 * y_vel) % cols
+        grid[x_pos][y_pos] += 1
 
     c1, c2, c3, c4 = 0, 0, 0, 0
     for i in range(rows // 2):
@@ -70,14 +72,12 @@ def part_2_solution(file_name: str):
     heap = []
     for step in range(1, rows * cols):
         grid = [["." for _ in range(cols)] for _ in range(rows)]
-        if step % 1000 == 0:
-            print(f"step {step} out of {rows * cols} steps")
         for line in input:
-            robot_x_pos, robot_y_pos = line[1], line[0]
-            robot_x_vel, robot_y_vel = line[3], line[2]
-            robot_x_pos = (robot_x_pos + step * robot_x_vel) % rows
-            robot_y_pos = (robot_y_pos + step * robot_y_vel) % cols
-            grid[robot_x_pos][robot_y_pos] = "#"
+            x_pos, y_pos = line[1], line[0]
+            x_vel, y_vel = line[3], line[2]
+            x_pos = (x_pos + step * x_vel) % rows
+            y_pos = (y_pos + step * y_vel) % cols
+            grid[x_pos][y_pos] = "#"
 
         beside = 0
         for i in range(1, rows - 1):
@@ -92,32 +92,35 @@ def part_2_solution(file_name: str):
     _, time = heapq.heappop(heap)
 
     for line in input:
-        robot_x_pos, robot_y_pos = line[1], line[0]
-        robot_x_vel, robot_y_vel = line[3], line[2]
-        robot_x_pos = (robot_x_pos + time * robot_x_vel) % rows
-        robot_y_pos = (robot_y_pos + time * robot_y_vel) % cols
-        grid[robot_x_pos][robot_y_pos] = "#"
+        x_pos, y_pos = line[1], line[0]
+        x_vel, y_vel = line[3], line[2]
+        x_pos = (x_pos + time * x_vel) % rows
+        y_pos = (y_pos + time * y_vel) % cols
+        grid[x_pos][y_pos] = "#"
 
     with open("christmas_tree.txt", "w") as f:
         for row in grid:
             f.write("".join(row) + "\n")
 
+    return time
 
-def time_function(func, *args):
-    start_time = time.time()
-    result = func(*args)
-    end_time = time.time()
-    elapsed_time = int(
-        (end_time - start_time) * 1000
-    )  # Convert to milliseconds and cast to int
-    input_type = "sample" if "sample" in args[0] else "full"
-    part = "part 1" if "part_1" in func.__name__ else "part 2"
-    print(
-        f"{input_type} input {part} took {elapsed_time} milliseconds and returned {result}"
-    )
 
+# ---------------------------- RUN AND SUBMIT ----------------------------
+
+ROOT_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../"))
+sys.path.append(ROOT_DIR)
+from utils.aoc_utils import time_function
+from utils.get_input import get_puzzle_input
+
+parser = argparse.ArgumentParser(description="Advent of Code Solution Script")
+parser.add_argument(
+    "-s", "--submit", action="store_true", help="Submit the solution to Advent of Code"
+)
+args = parser.parse_args()
+
+get_puzzle_input(suppress_logs=True)
 
 # time_function(part_1_solution, "sample.txt")
-time_function(part_1_solution, "full.txt")
+time_function(args.submit, part_1_solution, "full.txt")
 # time_function(part_2_solution, "sample.txt")
-time_function(part_2_solution, "full.txt")
+time_function(args.submit, part_2_solution, "full.txt")
