@@ -3,6 +3,7 @@ from collections import Counter, defaultdict, deque
 import heapq
 import math
 import os
+from time import sleep
 import numpy as np
 import pprint
 import re
@@ -191,46 +192,31 @@ def part_2_solution(file_name: str):
             if new_input[i][j] == "@":
                 x, y = i, j
     
-    def level_order(x, y, dir):
-        queue = deque()
-        queue.appendleft((x, y))
-        levels = []
-        while queue:
-            n = len(queue)
-            levels.append(set())
-            for _ in range(n):
-                cur_x, cur_y = queue.pop()
-                if dir == "^":
-                    if new_input[cur_x][cur_y] == "]":
-                        levels[-1].add((cur_x, cur_y))
-                        levels[-1].add((cur_x, cur_y - 1))
-                        if cur_x-1 >= 0 and cur_y-1 >= 0:
-                            queue.appendleft((cur_x-1, cur_y))
-                            queue.appendleft((cur_x-1, cur_y-1))
-                    elif new_input[cur_x][cur_y] == "[":
-                        levels[-1].add((cur_x, cur_y))
-                        levels[-1].add((cur_x, cur_y + 1))
-                        if cur_x-1 >= 0 and cur_y + 1 < cols:
-                            queue.appendleft((cur_x-1, cur_y))
-                            queue.appendleft((cur_x-1, cur_y+1))
-                elif dir == "v":
-                    if new_input[cur_x][cur_y] == "]":
-                        levels[-1].add((cur_x, cur_y))
-                        levels[-1].add((cur_x, cur_y - 1))
-                        if cur_x+1 < rows and cur_y+1 < cols:
-                            queue.appendleft((cur_x+1, cur_y))
-                            queue.appendleft((cur_x+1, cur_y-1))
-                    elif new_input[cur_x][cur_y] == "[":
-                        levels[-1].add((cur_x, cur_y))
-                        levels[-1].add((cur_x, cur_y + 1))
-                        if cur_x+1 < rows and cur_y + 1 < cols:
-                            queue.appendleft((cur_x+1, cur_y))
-                            queue.appendleft((cur_x+1, cur_y+1))
-        levels.pop()
-        return levels
+    mapping = {"^": (-1, 0), "v": (1, 0)}
+    
+    def is_move_possible(i, j, dir):
+        if new_input[i][j] == "#":
+            return False
+        if new_input[i][j] in "[]":
+            if new_input[i][j] == "]": j -= 1
+            if dir in "^v":
+                dx = mapping[dir][0]
+                return is_move_possible(i + dx, j, dir) and is_move_possible(i + dx, j + 1, dir)
+        return True
+    
+    def make_move(i, j, dir):
+        if new_input[i][j] in "#.": return
+        if new_input[i][j] == "]": j -= 1
+        dx = mapping[dir][0]
+        # post-order dfs, first move every thing that is above/below the current cell...
+        make_move(i+dx, j, dir)
+        make_move(i+dx, j+1, dir)
+
+        # ...and then move the current cell
+        new_input[i][j], new_input[i+dx][j] = new_input[i+dx][j], new_input[i][j]
+        new_input[i][j+1], new_input[i+dx][j+1] = new_input[i+dx][j+1], new_input[i][j+1]
 
     for dir_no, dir in enumerate(final):
-        # print(dir)
         if dir == ">":
             if y + 1 < cols:
                 if new_input[x][y + 1] == ".":
@@ -272,80 +258,14 @@ def part_2_solution(file_name: str):
                                 new_input[x][cur_col],
                             )
                             cur_col += 1
-                        y -= 1
-        elif dir == "^":
-            if x - 1 > 0:
-                if new_input[x - 1][y] == ".":
-                    new_input[x - 1][y], new_input[x][y] = new_input[x][y], new_input[x - 1][y]
-                    x -= 1
-                elif new_input[x - 1][y] == "#":
-                    pass
-                else:
-                    # go as far up
-                    levels = level_order(x-1, y, dir)
-                    most_left, most_right = cols, 0
-                    most_top = rows
-                    for level in levels:
-                        for px, py in level:
-                            most_left = min(most_left, py)
-                            most_right = max(most_right, py)
-                            most_top = min(most_top, px)
-                    # print(most_left, most_right, most_top)
-                    top = most_top - 1
-                    good = True
-                    for i in range(most_left, most_right + 1):
-                        if new_input[top][i] != ".":
-                            good = False
-                            break
-                    if good:
-                        # while top < x-1:
-                        #     for i in range(most_left, most_right + 1):
-                        #         new_input[top][i], new_input[top+1][i] = new_input[top+1][i], new_input[top][i]
-                        #     top += 1
-                        for level in reversed(levels):
-                            for px, py in level:
-                                new_input[px][py], new_input[px-1][py] = new_input[px-1][py], new_input[px][py]
-                        new_input[x][y], new_input[x-1][y] = new_input[x-1][y], new_input[x][y]
-                        x -= 1
-        elif dir == "v":
-            if x + 1 < rows:
-                if new_input[x + 1][y] == ".":
-                    new_input[x + 1][y], new_input[x][y] = new_input[x][y], new_input[x + 1][y]
-                    x += 1
-                elif new_input[x + 1][y] == "#":
-                    pass
-                else:
-                    # go as far down
-                    levels = level_order(x+1, y, dir)
-                    most_left, most_right = cols, 0
-                    most_top = 0
-                    for level in levels:
-                        for px, py in level:
-                            most_left = min(most_left, py)
-                            most_right = max(most_right, py)
-                            most_top = max(most_top, px)
-                    top = most_top + 1
-                    good = True
-                    for i in range(most_left, most_right + 1):
-                        if new_input[top][i] != ".":
-                            good = False
-                            break
-                    if good:
-                        # print(list(reversed(levels)))
-                        for level in reversed(levels):
-                            for px, py in level:
-                                new_input[px][py], new_input[px+1][py] = new_input[px+1][py], new_input[px][py]
-                        # while top > x + 1:
-                        #     for i in range(most_left, most_right + 1):
-                        #         new_input[top][i], new_input[top-1][i] = new_input[top-1][i], new_input[top][i]
-                        #     top -= 1
-                        new_input[x][y], new_input[x+1][y] = new_input[x+1][y], new_input[x][y]
-                        x += 1
+                        y -= 1 
+        else:
+            dx = mapping[dir][0]
+            if is_move_possible(x + dx, y, dir):
+                make_move(x + dx, y, dir)
+                new_input[x][y], new_input[x + dx][y] = new_input[x + dx][y], new_input[x][y]
+                x += dx
 
-        # print(f"move {dir_no}:", dir)
-        # for row in new_input: print("".join(row))
-        # print()
-    for row in new_input: print("".join(row))
     ans = 0
     for i in range(rows):
         for j in range(cols):
@@ -365,7 +285,7 @@ args = parser.parse_args()
 
 # get_puzzle_input(suppress_logs=True)
 
-# time_function(False, part_1_solution, "sample.txt")
-# time_function(args.submit, part_1_solution, "full.txt")
+time_function(False, part_1_solution, "sample.txt")
+time_function(args.submit, part_1_solution, "full.txt")
 time_function(False, part_2_solution, "sample.txt")
-# time_function(args.submit, part_2_solution, "full.txt")
+time_function(args.submit, part_2_solution, "full.txt")
