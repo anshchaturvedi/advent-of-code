@@ -181,9 +181,9 @@ def part_2_solution(file_name: str):
 
     rows, cols = len(new_input), len(new_input[0])
 
-    for row in new_input:
-        print("".join(row))
-    print()
+    # for row in new_input:
+    #     print("".join(row))
+    # print()
 
     x, y = None, None
     for i in range(rows):
@@ -197,39 +197,39 @@ def part_2_solution(file_name: str):
         levels = []
         while queue:
             n = len(queue)
-            levels.append([])
+            levels.append(set())
             for _ in range(n):
                 cur_x, cur_y = queue.pop()
                 if dir == "^":
                     if new_input[cur_x][cur_y] == "]":
-                        levels[-1].append((cur_x, cur_y))
-                        levels[-1].append((cur_x, cur_y - 1))
+                        levels[-1].add((cur_x, cur_y))
+                        levels[-1].add((cur_x, cur_y - 1))
                         if cur_x-1 >= 0 and cur_y-1 >= 0:
                             queue.appendleft((cur_x-1, cur_y))
                             queue.appendleft((cur_x-1, cur_y-1))
                     elif new_input[cur_x][cur_y] == "[":
-                        levels[-1].append((cur_x, cur_y))
-                        levels[-1].append((cur_x, cur_y + 1))
+                        levels[-1].add((cur_x, cur_y))
+                        levels[-1].add((cur_x, cur_y + 1))
                         if cur_x-1 >= 0 and cur_y + 1 < cols:
                             queue.appendleft((cur_x-1, cur_y))
                             queue.appendleft((cur_x-1, cur_y+1))
                 elif dir == "v":
                     if new_input[cur_x][cur_y] == "]":
-                        levels[-1].append((cur_x, cur_y))
-                        levels[-1].append((cur_x, cur_y - 1))
+                        levels[-1].add((cur_x, cur_y))
+                        levels[-1].add((cur_x, cur_y - 1))
                         if cur_x+1 < rows and cur_y+1 < cols:
                             queue.appendleft((cur_x+1, cur_y))
                             queue.appendleft((cur_x+1, cur_y-1))
                     elif new_input[cur_x][cur_y] == "[":
-                        levels[-1].append((cur_x, cur_y))
-                        levels[-1].append((cur_x, cur_y + 1))
+                        levels[-1].add((cur_x, cur_y))
+                        levels[-1].add((cur_x, cur_y + 1))
                         if cur_x+1 < rows and cur_y + 1 < cols:
                             queue.appendleft((cur_x+1, cur_y))
                             queue.appendleft((cur_x+1, cur_y+1))
         levels.pop()
         return levels
 
-    for dir in final:
+    for dir_no, dir in enumerate(final):
         # print(dir)
         if dir == ">":
             if y + 1 < cols:
@@ -290,21 +290,24 @@ def part_2_solution(file_name: str):
                             most_left = min(most_left, py)
                             most_right = max(most_right, py)
                             most_top = min(most_top, px)
-                    print(most_left, most_right, most_top)
+                    # print(most_left, most_right, most_top)
                     top = most_top - 1
                     good = True
                     for i in range(most_left, most_right + 1):
-                        if new_input[top][i] == "#":
+                        if new_input[top][i] != ".":
                             good = False
                             break
                     if good:
-                        while top < x-1:
-                            for i in range(most_left, most_right + 1):
-                                new_input[top][i], new_input[top+1][i] = new_input[top+1][i], new_input[top][i]
-                            top += 1
+                        # while top < x-1:
+                        #     for i in range(most_left, most_right + 1):
+                        #         new_input[top][i], new_input[top+1][i] = new_input[top+1][i], new_input[top][i]
+                        #     top += 1
+                        for level in reversed(levels):
+                            for px, py in level:
+                                new_input[px][py], new_input[px-1][py] = new_input[px-1][py], new_input[px][py]
                         new_input[x][y], new_input[x-1][y] = new_input[x-1][y], new_input[x][y]
                         x -= 1
-        else:
+        elif dir == "v":
             if x + 1 < rows:
                 if new_input[x + 1][y] == ".":
                     new_input[x + 1][y], new_input[x][y] = new_input[x][y], new_input[x + 1][y]
@@ -324,28 +327,29 @@ def part_2_solution(file_name: str):
                     top = most_top + 1
                     good = True
                     for i in range(most_left, most_right + 1):
-                        if new_input[top][i] == "#":
+                        if new_input[top][i] != ".":
                             good = False
                             break
                     if good:
-                        # for level in levels:
-                        #     for px, py in level:
-                        #         new_input[px][py], new_input[px-1][py] = new_input[px-1][py], new_input[px][py]
-                        while top > x + 1:
-                            for i in range(most_left, most_right + 1):
-                                new_input[top][i], new_input[top-1][i] = new_input[top-1][i], new_input[top][i]
-                            top -= 1
+                        # print(list(reversed(levels)))
+                        for level in reversed(levels):
+                            for px, py in level:
+                                new_input[px][py], new_input[px+1][py] = new_input[px+1][py], new_input[px][py]
+                        # while top > x + 1:
+                        #     for i in range(most_left, most_right + 1):
+                        #         new_input[top][i], new_input[top-1][i] = new_input[top-1][i], new_input[top][i]
+                        #     top -= 1
                         new_input[x][y], new_input[x+1][y] = new_input[x+1][y], new_input[x][y]
                         x += 1
 
-        print("move:", dir)
-        for row in new_input: print("".join(row))
-        print()
-    # for row in new_input: print("".join(row))
+        # print(f"move {dir_no}:", dir)
+        # for row in new_input: print("".join(row))
+        # print()
+    for row in new_input: print("".join(row))
     ans = 0
     for i in range(rows):
         for j in range(cols):
-            if new_input[i][j] == "O":
+            if new_input[i][j] == "[":
                 ans += 100 * i + j
     return ans
 
