@@ -4,6 +4,7 @@ import os
 import time
 from dotenv import load_dotenv
 import requests
+import re
 
 
 load_dotenv()
@@ -49,3 +50,13 @@ def time_function(should_submit, func, *args):
         success, message = submit_solution(1 if part == "part_1" else 2, str(result))
         if not success:
             print(message)
+
+def nums(x):
+    pattern = r"-?\d+"
+    if isinstance(x, str):
+        matches = re.findall(pattern, x)
+        return list(map(int, matches))
+    if isinstance(x, list):
+        stringified = "".join(x)
+        matches = re.findall(pattern, stringified)
+        return list(map(int, matches))

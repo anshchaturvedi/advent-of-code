@@ -8,20 +8,12 @@ import pprint
 import re
 import sys
 
+ROOT_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../"))
+sys.path.append(ROOT_DIR)
+from utils.aoc_utils import time_function, nums
+from utils.get_input import get_puzzle_input
 
 sys.setrecursionlimit(15000000)
-
-
-def get_nums(x):
-    pattern = r"-?\d+"
-    if isinstance(x, str):
-        matches = re.findall(pattern, x)
-        return list(map(int, matches))
-    if isinstance(x, list):
-        stringified = "".join(x)
-        matches = re.findall(pattern, stringified)
-        return list(map(int, matches))
-
 
 def part_1_solution(file_name: str):
     input = []
@@ -47,10 +39,6 @@ def part_2_solution(file_name: str):
 
 # ---------------------------- RUN AND SUBMIT ----------------------------
 
-ROOT_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../"))
-sys.path.append(ROOT_DIR)
-from utils.aoc_utils import time_function
-from utils.get_input import get_puzzle_input
 
 parser = argparse.ArgumentParser(description="Advent of Code Solution Script")
 parser.add_argument(
