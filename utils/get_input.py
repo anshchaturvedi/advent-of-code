@@ -34,3 +34,6 @@ def get_puzzle_input(suppress_logs=False):
             print(f"Puzzle input for Day {AOC_DAY:02} saved to {target_file}")
     except Exception as e:
         print(f"Error: {e}")
+
+if __name__ == "__main__":
+    get_puzzle_input()
