@@ -10,7 +10,7 @@ import sys
 
 ROOT_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../"))
 sys.path.append(ROOT_DIR)
-from utils.aoc_utils import time_function, nums
+from utils.aoc_tools import time_function, nums
 from utils.get_input import get_puzzle_input
 
 sys.setrecursionlimit(15000000)

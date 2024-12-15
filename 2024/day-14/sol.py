@@ -109,7 +109,7 @@ def part_2_solution(file_name: str):
 
 ROOT_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../"))
 sys.path.append(ROOT_DIR)
-from utils.aoc_utils import time_function
+from utils.aoc_tools import time_function
 from utils.get_input import get_puzzle_input
 
 parser = argparse.ArgumentParser(description="Advent of Code Solution Script")
