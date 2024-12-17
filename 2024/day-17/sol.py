@@ -28,50 +28,45 @@ def part_1_solution(file_name: str):
     instrs = nums(input[4])
 
     def get_operand(operand):
-        if operand == 4: return a
-        elif operand == 5: return b
-        elif operand == 6: return c
-        elif operand == 7: return 7
-        else: return operand
+        if operand == 4:
+            return a
+        elif operand == 5:
+            return b
+        elif operand == 6:
+            return c
+        elif operand == 7:
+            return 7
+        else:
+            return operand
 
     i = 0
     ans = []
 
     while i < len(instrs):
-        op, operand = instrs[i], instrs[i+1]
+        op, operand = instrs[i], instrs[i + 1]
         x = get_operand(operand)
         if op == 0:
-            new_a = a / (2 ** x)
-            a = int(new_a)
-            i += 2
+            a = int(a / (2**x))
         elif op == 1:
             b = b ^ operand
-            i += 2
         elif op == 2:
             b = x % 8
-            i += 2
         elif op == 3:
-            if a == 0:
-                i += 2
-            else:
+            if a != 0:
                 i = operand
+                continue
         elif op == 4:
             b = b ^ c
-            i += 2
         elif op == 5:
             ans.append(x % 8)
-            i += 2
         elif op == 6:
-            new_a = a / (2 ** x)
-            b = int(new_a)
-            i += 2
+            b = int(a / (2**x))
         elif op == 7:
-            new_a = a / (2 ** x)
-            c = int(new_a)
-            i += 2
+            c = int(a / (2**x))
+        i += 2
 
     return ",".join(list(map(str, ans)))
-    
+
 
 def part_2_solution(file_name: str):
     input = open(file_name).readlines()
@@ -84,11 +79,16 @@ def part_2_solution(file_name: str):
 
     def simulate(start_a_value):
         def get_operand(operand):
-            if operand == 4: return reg_a
-            elif operand == 5: return reg_b
-            elif operand == 6: return reg_c
-            elif operand == 7: return 7
-            else: return operand
+            if operand == 4:
+                return reg_a
+            elif operand == 5:
+                return reg_b
+            elif operand == 6:
+                return reg_c
+            elif operand == 7:
+                return 7
+            else:
+                return operand
 
         reg_a = start_a_value
         reg_b = b
@@ -97,52 +97,44 @@ def part_2_solution(file_name: str):
         ans = []
 
         while i < len(instrs):
-            op, operand = instrs[i], instrs[i+1]
+            op, operand = instrs[i], instrs[i + 1]
             x = get_operand(operand)
             if op == 0:
-                reg_a = int(reg_a / (2 ** x))
-                i += 2
+                reg_a = int(reg_a / (2**x))
             elif op == 1:
                 reg_b = reg_b ^ operand
-                i += 2
             elif op == 2:
                 reg_b = x % 8
-                i += 2
             elif op == 3:
-                if reg_a == 0:
-                    i += 2
-                else:
+                if reg_a != 0:
                     i = operand
+                    continue
             elif op == 4:
                 reg_b = reg_b ^ reg_c
-                i += 2
             elif op == 5:
                 ans.append(x % 8)
-                i += 2
             elif op == 6:
-                new_a = reg_a / (2 ** x)
-                reg_b = int(new_a)
-                i += 2
+                reg_b = int(reg_a / (2**x))
             elif op == 7:
-                new_a = reg_a / (2 ** x)
-                reg_c = int(new_a)
-                i += 2
+                reg_c = int(reg_a / (2**x))
+            i += 2
 
         return ans
 
-    possibilities = {0: [x for x in range(8)]}
-    for exponent in range(1, len(instrs)):
-        possibilities[exponent] = []
-        for p in possibilities[exponent - 1]:
+    all = {0: [x for x in range(8)]}
+    for exp in range(1, len(instrs)):
+        all[exp] = []
+        for p in all[exp - 1]:
             for q in range(8):
                 if p != 0:
                     a = 8 * p + q
                     out = simulate(a)
                     l = len(out)
-                    if out == instrs[len(instrs) - l:]:
-                        possibilities[exponent].append(a)
+                    if out == instrs[len(instrs) - l :]:
+                        all[exp].append(a)
                     if out == instrs:
                         return a
+
 
 # ---------------------------- RUN AND SUBMIT ----------------------------
 
