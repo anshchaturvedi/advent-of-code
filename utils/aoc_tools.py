@@ -34,7 +34,7 @@ def submit_solution(level, answer):
         return False, f"Submission failed with status code {response.status_code}."
 
 
-def time_function(should_submit, func, *args):
+def time_function(func, *args):
     start_time = time.time()
     result = func(*args)
     end_time = time.time()
@@ -46,10 +46,6 @@ def time_function(should_submit, func, *args):
     print(
         f"{input_type} input {part} took {elapsed_time} milliseconds and returned {result}"
     )
-    if should_submit and input_type == "full":
-        success, message = submit_solution(1 if part == "part_1" else 2, str(result))
-        if not success:
-            print(message)
 
 def nums(x):
     pattern = r"-?\d+"

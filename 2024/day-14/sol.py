@@ -121,6 +121,6 @@ args = parser.parse_args()
 get_puzzle_input(suppress_logs=True)
 
 # time_function(part_1_solution, "sample.txt")
-time_function(args.submit, part_1_solution, "full.txt")
+time_function(part_1_solution, "full.txt")
 # time_function(part_2_solution, "sample.txt")
-time_function(args.submit, part_2_solution, "full.txt")
+time_function(part_2_solution, "full.txt")

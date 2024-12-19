@@ -54,8 +54,8 @@ def part_2_solution(file_name: str):
     input = open(file_name).readlines()
     input = [x.strip() for x in input]
 
-    rows, cols = 71, 71
-    # rows, cols = 7, 7
+    # rows, cols = 71, 71
+    rows, cols = 7, 7
 
     def simulate(x):
         grid = [["." for _ in range(cols)] for _ in range(rows)]
@@ -101,7 +101,7 @@ def part_2_solution(file_name: str):
 
 # ---------------------------- SUBMIT ----------------------------
 
-# time_function(False, part_1_solution, "sample.txt")
-# time_function(False, part_1_solution, "full.txt")
-# time_function(False, part_2_solution, "sample.txt")
-time_function(False, part_2_solution, "full.txt")
+# time_function(part_1_solution, "sample.txt")
+# time_function(part_1_solution, "full.txt")
+time_function(part_2_solution, "sample.txt")
+# time_function(part_2_solution, "full.txt")
