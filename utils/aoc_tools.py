@@ -5,6 +5,7 @@ import time
 from dotenv import load_dotenv
 import requests
 import re
+import pyperclip as pc
 
 
 load_dotenv()
@@ -46,6 +47,8 @@ def time_function(func, *args):
     print(
         f"{input_type} input {part} took {elapsed_time} milliseconds and returned {result}"
     )
+    if part == "part 2":
+        pc.copy(result)
 
 def nums(x):
     pattern = r"-?\d+"
