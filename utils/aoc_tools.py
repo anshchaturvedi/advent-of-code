@@ -14,6 +14,8 @@ AOC_DAY = datetime.now().day
 AOC_SESSION_TOKEN = os.getenv("AOC_SESSION_TOKEN")
 SUBMIT_URL = f"https://adventofcode.com/{AOC_YEAR}/day/{AOC_DAY}/answer"
 
+dir4 = [(0, 1), (1, 0), (-1, 0), (0, -1)]
+
 def submit_solution(level, answer):
     """Submit the solution to Advent of Code."""
     headers = {
