@@ -12,169 +12,207 @@ from utils.aoc_tools import time_function, nums, dir4
 
 sys.setrecursionlimit(15000000)
 
-numeric_keypad = {
-    "7": (0, 0),
-    "8": (0, 1),
-    "9": (0, 2),
-    "4": (1, 0),
-    "5": (1, 1),
-    "6": (1, 2),
-    "1": (2, 0),
-    "2": (2, 1),
-    "3": (2, 2),
-    "0": (3, 1),
-    "A": (3, 2),
-}
+num_keypad_layout = [
+    ["7", "8", "9"],
+    ["4", "5", "6"],
+    ["1", "2", "3"],
+    [None, "0", "A"],
+]
 
-
-# +---+---+---+
-# | 7 | 8 | 9 |
-# +---+---+---+
-# | 4 | 5 | 6 |
-# +---+---+---+
-# | 1 | 2 | 3 |
-# +---+---+---+
-#     | 0 | A |
-#     +---+---+
-
-direction_keypad = {"^": (0, 1), "A": (0, 2), "<": (1, 0), "v": (1, 1), ">": (1, 2)}
-
-#     +---+---+
-#     | ^ | A |
-# +---+---+---+
-# | < | v | > |
-# +---+---+---+
-
-
-def should_swap(string, start, curr):
-    for i in range(start, curr):
-        if string[i] == string[curr]:
-            return False
-    return True
-
-
-def get_permutations(s):
-    res = []
-    find_permutations(list(s), 0, len(s), res)
-    return res
-
-
-def find_permutations(string, index, n, res):
-    if index >= n:
-        res.append("".join(string))
-        return
-
-    for i in range(index, n):
-        if should_swap(string, index, i):
-            string[index], string[i] = string[i], string[index]
-            find_permutations(string, index + 1, n, res)
-            string[index], string[i] = string[i], string[index]
+dir_keypad_layout = [[None, "^", "A"], ["<", "v", ">"]]
 
 
 def part_1_solution(file_name: str):
-    input = open(file_name).readlines()
-    input = [x.strip() for x in input]
+    data = [line.strip() for line in open(file_name).readlines()]
 
-    def generate_moves(moves, start=False):
-        if start:
-            keypad = numeric_keypad
-        else:
-            keypad = direction_keypad
+    from collections import deque
+    from itertools import product
 
-        cx, cy = keypad["A"]
-        res = []
-        for c in moves:
-            nx, ny = keypad[c]
+    def map_keypad_positions(keypad):
+        positions = {}
+        for row_index, row in enumerate(keypad):
+            for col_index, key in enumerate(row):
+                if key is not None:
+                    positions[key] = (row_index, col_index)
+        return positions
 
-            # get either up or down
-            if nx > cx:
-                for _ in range(nx - cx):
-                    res.append("v")
-            else:
-                for _ in range(cx - nx):
-                    res.append("^")
+    def generate_sequences(keypad):
+        positions = map_keypad_positions(keypad)
+        sequences = {}
 
-            # get either left or right
-            if ny > cy:
-                for _ in range(ny - cy):
-                    res.append(">")
-            else:
-                for _ in range(cy - ny):
-                    res.append("<")
+        for start_key, start_pos in positions.items():
+            for end_key, end_pos in positions.items():
+                if start_key == end_key:
+                    sequences[(start_key, end_key)] = ["A"]
+                    continue
 
-            res.append("A")
-            cx, cy = nx, ny
+                queue = deque([(start_pos, "")])
+                shortest_length = float("inf")
+                valid_sequences = []
 
-        print("og:", ''.join(res))
-        # print("".join(res).split("A")[:-1])
-        # return ["".join(res)]
+                while queue:
+                    (row, col), path = queue.popleft()
 
-        a = "".join(res).split("A")[:-1]
-        all_combos = []
-        def recurse(i, word):
-            if i == len(a):
-                all_combos.append(list(word))
-                return
-            all_perms = get_permutations(a[i])
-            for perm in all_perms:
-                # if perm == "":
-                #     word.append(" ")
-                # else:
-                word.append(perm)
-                recurse(i+1, word)
-                word.pop()
-        recurse(0, [])
-        # print(a)
-        # for ab in all_combos: print("A".join(ab))
-        all_combos = ["A".join(x) for x in all_combos]
-        return all_combos
+                    for dr, dc, move in [
+                        (-1, 0, "^"),
+                        (1, 0, "v"),
+                        (0, -1, "<"),
+                        (0, 1, ">"),
+                    ]:
+                        new_row, new_col = row + dr, col + dc
 
-    ans = 0
-    for code in input:
-        print(f"looking at {code}")
-        res = generate_moves(code, True)
-        lowest = min(map(len, res))
-        possible_res = [s for s in res if len(s) == lowest]
-        print(possible_res)
+                        if not (
+                            0 <= new_row < len(keypad) and 0 <= new_col < len(keypad[0])
+                        ):
+                            continue
 
-        res2 = []
-        for r in possible_res:
-            moves = generate_moves(r)
-            for move in moves:
-                res2.append(move)
-        lowest = min(map(len, res2))
-        possible_res = [s for s in res2 if len(s) == lowest]
-        # for move in possible_res: print(move)
-        print(possible_res[-1])
-        print("og: v<<A>>^A<A>AvA<^AA>A<vAAA>^A")
+                        next_key = keypad[new_row][new_col]
+                        if next_key is None:
+                            continue
 
-        # res3 = []
-        # for r in possible_res:
-        #     res3.extend(generate_moves(r))
-        # lowest = min(map(len, res3))
-        # possible_res = [s for s in res3 if len(s) == lowest]
-        # print(lowest, possible_res[0])
+                        if next_key == end_key:
+                            if len(path) + 1 > shortest_length:
+                                break
+                            shortest_length = len(path) + 1
+                            valid_sequences.append(path + move + "A")
+                        else:
+                            queue.append(((new_row, new_col), path + move))
+                    else:
+                        continue
+                    break
 
-        # for x in res: print(x)
-        # break
-        # res1 = generate_moves(res)
-        # res2 = generate_moves(res1)
-        # res3 = generate_moves(res2)
+                sequences[(start_key, end_key)] = valid_sequences
 
+        return sequences
 
-    return ans
+    def calculate_possible_paths(input_string, sequences):
+        path_options = [
+            sequences[(x, y)] for x, y in zip("A" + input_string, input_string)
+        ]
+        return ["".join(combination) for combination in product(*path_options)]
 
-def part_1_solution(file_name: str):
-    pass
+    num_sequences = generate_sequences(num_keypad_layout)
+    dir_sequences = generate_sequences(dir_keypad_layout)
+    total_distance = 0
+
+    for input_line in data:
+        initial_paths = calculate_possible_paths(input_line, num_sequences)
+        current_paths = initial_paths
+
+        for _ in range(2):
+            next_paths = []
+            for path in current_paths:
+                next_paths.extend(calculate_possible_paths(path, dir_sequences))
+            min_length = min(map(len, next_paths))
+            current_paths = [path for path in next_paths if len(path) == min_length]
+
+        total_distance += len(current_paths[0]) * int(input_line[:-1])
+
+    return total_distance
+
 
 def part_2_solution(file_name: str):
-    input = open(file_name).readlines()
-    input = [x.strip() for x in input]
+    data = [line.strip() for line in open(file_name).readlines()]
+
+    from functools import cache
+    from itertools import product
+
+    def map_keypad_positions(keypad):
+        positions = {}
+        for row_index, row in enumerate(keypad):
+            for col_index, key in enumerate(row):
+                if key is not None:
+                    positions[key] = (row_index, col_index)
+        return positions
+
+    def generate_sequences(keypad):
+        positions = map_keypad_positions(keypad)
+        sequences = {}
+
+        for start_key, start_pos in positions.items():
+            for end_key, end_pos in positions.items():
+                if start_key == end_key:
+                    sequences[(start_key, end_key)] = ["A"]
+                    continue
+
+                queue = deque([(start_pos, "")])
+                shortest_length = float("inf")
+                valid_sequences = []
+
+                while queue:
+                    (row, col), path = queue.popleft()
+
+                    for dr, dc, move in [
+                        (-1, 0, "^"),
+                        (1, 0, "v"),
+                        (0, -1, "<"),
+                        (0, 1, ">"),
+                    ]:
+                        new_row, new_col = row + dr, col + dc
+
+                        if not (
+                            0 <= new_row < len(keypad) and 0 <= new_col < len(keypad[0])
+                        ):
+                            continue
+
+                        next_key = keypad[new_row][new_col]
+                        if next_key is None:
+                            continue
+
+                        if next_key == end_key:
+                            if len(path) + 1 > shortest_length:
+                                break
+                            shortest_length = len(path) + 1
+                            valid_sequences.append(path + move + "A")
+                        else:
+                            queue.append(((new_row, new_col), path + move))
+                    else:
+                        continue
+                    break
+
+                sequences[(start_key, end_key)] = valid_sequences
+
+        return sequences
+
+    def calculate_possible_paths(input_string, sequences):
+        path_options = [
+            sequences[(x, y)] for x, y in zip("A" + input_string, input_string)
+        ]
+        return ["".join(combination) for combination in product(*path_options)]
+
+    num_sequences = generate_sequences(num_keypad_layout)
+    dir_sequences = generate_sequences(dir_keypad_layout)
+    sequence_lengths = {pair: len(paths[0]) for pair, paths in dir_sequences.items()}
+
+    @cache
+    def compute_min_length(sequence, depth=25):
+        if depth == 1:
+            return sum(
+                sequence_lengths[(x, y)] for x, y in zip("A" + sequence, sequence)
+            )
+
+        total_length = 0
+        for x, y in zip("A" + sequence, sequence):
+            total_length += min(
+                compute_min_length(sub_sequence, depth - 1)
+                for sub_sequence in dir_sequences[(x, y)]
+            )
+
+        return total_length
+
+    total_distance = 0
+
+    for input_line in data:
+        initial_paths = calculate_possible_paths(input_line, num_sequences)
+        shortest_length = min(map(compute_min_length, initial_paths))
+        total_distance += shortest_length * int(input_line[:-1])
+
+    return total_distance
+
 
 # ---------------------------- SUBMIT ----------------------------
 
-
-time_function(part_1_solution, "sample.txt")
-# time_function(part_1_solution, "full.txt")
-# time_function(part_2_solution, "sample.txt")
-# time_function(part_2_solution, "full.txt")
+time_function(part_1_solution, "sample.txt")  # 1972
+time_function(part_1_solution, "full.txt")  # 138764
+time_function(part_2_solution, "sample.txt")  # 2379451789590
+time_function(part_2_solution, "full.txt")  # 169137886514152
