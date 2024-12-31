@@ -58,6 +58,5 @@ def nums(x):
         matches = re.findall(pattern, x)
         return list(map(int, matches))
     if isinstance(x, list):
-        stringified = "".join(x)
-        matches = re.findall(pattern, stringified)
-        return list(map(int, matches))
+        return nums("".join(x))
+
